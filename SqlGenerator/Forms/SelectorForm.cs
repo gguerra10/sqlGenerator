@@ -761,10 +761,10 @@ namespace SqlGenerator.Forms
         /// <param name="e"></param>
         private void ColumnsGridViewCurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine("CurrentCellDirtyStateChanged");
-
-            UpdateQueryGeneratorFile();
-            BuildSql();
+            if (columnsGridView.IsCurrentCellDirty)
+            {
+                columnsGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
         }
 
 
@@ -804,11 +804,37 @@ namespace SqlGenerator.Forms
 
                     UpdateQueryGeneratorFile();
                     BuildSql();
-                }
+                }/*
                 else if (e.ColumnIndex.Equals(ColumnsGridViewColumns.Selected.GetPosition()) &&
                     senderGrid.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn && e.RowIndex >= 0)
                 {
-                    senderGrid.EndEdit();
+                    // Handle selected checkbox button clicked, selection
+                    var dataGridViewCheckBoxCell = (DataGridViewCheckBoxCell)senderGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    if (Convert.ToBoolean(dataGridViewCheckBoxCell.Value))
+                    {
+                        Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " selected");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " unselected");
+                    }
+
+                    UpdateQueryGeneratorFile();
+                    BuildSql();
+                }*/
+            }
+        }
+
+        private void ColumnsGridViewCellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            var senderGrid = (DataGridView)sender;
+            if (e.RowIndex >= 0)
+            {
+                var tableScheme = (ITable)senderGrid.Rows[e.RowIndex].Cells[ColumnsGridViewColumns.TableName.GetPosition()].Tag;
+                var columnScheme = (IColumn)senderGrid.Rows[e.RowIndex].Cells[ColumnsGridViewColumns.ColumnName.GetPosition()].Tag;
+                if (e.ColumnIndex.Equals(ColumnsGridViewColumns.Selected.GetPosition()) &&
+                    senderGrid.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn && e.RowIndex >= 0)
+                {
                     // Handle selected checkbox button clicked, selection
                     var dataGridViewCheckBoxCell = (DataGridViewCheckBoxCell)senderGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
                     if (Convert.ToBoolean(dataGridViewCheckBoxCell.Value))
@@ -1026,5 +1052,7 @@ namespace SqlGenerator.Forms
         {
             //NewFile();
         }
+
+
     }
 }

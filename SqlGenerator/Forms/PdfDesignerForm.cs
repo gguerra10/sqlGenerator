@@ -6,6 +6,7 @@ using SqlGenerator.Export.Pdf.Enum;
 using SqlGenerator.Extension;
 using SqlGenerator.File;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -51,6 +52,7 @@ namespace SqlGenerator.Forms
 
             if (PdfDesign.DataCollection.Count == 0)
             {
+                // Add every column to PdfDesign
                 foreach (DataColumn column in DataTable.Columns)
                 {
                     PdfDesign.DataCollection.Add(new PdfDesignData()
@@ -61,6 +63,22 @@ namespace SqlGenerator.Forms
                     });
                 }
             }
+            else
+            {
+                // Remove inexistent columns from PdfDesign
+                var designDataCollection = new List<PdfDesignData>();
+                foreach (var designData in PdfDesign.DataCollection)
+                {
+                    if (null != DataTable.Columns[designData.Name])
+                    {
+                        designDataCollection.Add(designData);
+                    }
+                }
+                PdfDesign.DataCollection = designDataCollection;
+                
+            }
+
+            // Add default FontSize in  PdfDesign
             if (PdfDesign.FontSize == 0)
             {
                 PdfDesign.FontSize = 8;
@@ -161,10 +179,28 @@ namespace SqlGenerator.Forms
             }
         }
 
+
+        private void DesignerDataGridViewCellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            var senderGrid = (DataGridView)sender;
+
+            if (e.RowIndex >= 0)
+            {
+                if (e.ColumnIndex.Equals(PdfDesignerGridViewColumns.Hide.GetPosition()) &&
+                    senderGrid.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn && e.RowIndex >= 0)
+                {
+                    UpdatePdfDesign();
+                    UpdatePreview();
+                }
+            }
+        }
+
         private void DesignerDataGridViewCurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
-            UpdatePdfDesign();
-            UpdatePreview();
+            if(designerDataGridView.IsCurrentCellDirty)
+            {
+                designerDataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
         }
 
         private void DesignerDataGridViewCellValidated(object sender, DataGridViewCellEventArgs e)
@@ -434,5 +470,7 @@ namespace SqlGenerator.Forms
             PdfDesign.HeaderForegroundColor = colorDialog.Color;
             UpdatePreview();
         }
+
+
     }
 }

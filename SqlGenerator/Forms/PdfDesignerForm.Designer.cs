@@ -32,6 +32,7 @@ namespace SqlGenerator.Forms
             this.mainTableLayout = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
             this.colorGroupBox = new System.Windows.Forms.GroupBox();
+            this.foregroundColorButton = new System.Windows.Forms.Button();
             this.backgroundColorButton = new System.Windows.Forms.Button();
             this.alignmentGroupBox = new System.Windows.Forms.GroupBox();
             this.rightRadioButton = new System.Windows.Forms.RadioButton();
@@ -58,7 +59,6 @@ namespace SqlGenerator.Forms
             this.panel4 = new System.Windows.Forms.Panel();
             this.saveButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
-            this.foregroundColorButton = new System.Windows.Forms.Button();
             this.mainTableLayout.SuspendLayout();
             this.panel1.SuspendLayout();
             this.colorGroupBox.SuspendLayout();
@@ -118,6 +118,16 @@ namespace SqlGenerator.Forms
             this.colorGroupBox.TabIndex = 5;
             this.colorGroupBox.TabStop = false;
             this.colorGroupBox.Text = "Header Color";
+            // 
+            // foregroundColorButton
+            // 
+            this.foregroundColorButton.Location = new System.Drawing.Point(16, 60);
+            this.foregroundColorButton.Name = "foregroundColorButton";
+            this.foregroundColorButton.Size = new System.Drawing.Size(87, 23);
+            this.foregroundColorButton.TabIndex = 0;
+            this.foregroundColorButton.Text = "Foreground";
+            this.foregroundColorButton.UseVisualStyleBackColor = true;
+            this.foregroundColorButton.Click += new System.EventHandler(this.ForegroundColorButton_Click);
             // 
             // backgroundColorButton
             // 
@@ -292,8 +302,9 @@ namespace SqlGenerator.Forms
             this.designerDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.designerDataGridView.Size = new System.Drawing.Size(1092, 411);
             this.designerDataGridView.TabIndex = 0;
-            this.designerDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellContentClick);
+            //this.designerDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellContentClick);
             this.designerDataGridView.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellValidated);
+            this.designerDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellValueChanged);
             this.designerDataGridView.CurrentCellDirtyStateChanged += new System.EventHandler(this.DesignerDataGridViewCurrentCellDirtyStateChanged);
             // 
             // previewGroupBox
@@ -421,16 +432,6 @@ namespace SqlGenerator.Forms
             this.exportButton.Text = "Export";
             this.exportButton.UseVisualStyleBackColor = true;
             this.exportButton.Click += new System.EventHandler(this.ExportButton_Click);
-            // 
-            // foregroundColorButton
-            // 
-            this.foregroundColorButton.Location = new System.Drawing.Point(16, 60);
-            this.foregroundColorButton.Name = "foregroundColorButton";
-            this.foregroundColorButton.Size = new System.Drawing.Size(87, 23);
-            this.foregroundColorButton.TabIndex = 0;
-            this.foregroundColorButton.Text = "Foreground";
-            this.foregroundColorButton.UseVisualStyleBackColor = true;
-            this.foregroundColorButton.Click += new System.EventHandler(this.ForegroundColorButton_Click);
             // 
             // PdfDesignerForm
             // 
