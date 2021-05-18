@@ -1,0 +1,6 @@
+.vs/
+SqlGenerator.Core/bin/
+SqlGenerator.Core/obj/
+SqlGenerator.Export/obj/
+SqlGenerator/bin/
+SqlGenerator/obj/

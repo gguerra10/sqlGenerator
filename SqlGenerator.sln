@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlGenerator.UI", "SqlGenerator.UI\SqlGenerator.UI.csproj", "{91E7C0A7-97E2-4AE7-85C1-C0102ACF660F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlGenerator", "SqlGenerator\SqlGenerator.csproj", "{91E7C0A7-97E2-4AE7-85C1-C0102ACF660F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlGenerator", "SqlGenerator\SqlGenerator.csproj", "{B1753BA8-513E-412B-9D0A-54D2023ADDC6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlGenerator.Core", "SqlGenerator.Core\SqlGenerator.Core.csproj", "{B1753BA8-513E-412B-9D0A-54D2023ADDC6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlGenerator.Export.Pdf", "SqlGenerator.Export.Pdf\SqlGenerator.Export.Pdf.csproj", "{DBC1059F-F61F-4A0B-AC82-76E898CF0908}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlGenerator.Export", "SqlGenerator.Export\SqlGenerator.Export.csproj", "{DBC1059F-F61F-4A0B-AC82-76E898CF0908}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
