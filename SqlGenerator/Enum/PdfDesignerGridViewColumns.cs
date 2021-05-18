@@ -10,7 +10,7 @@ namespace SqlGenerator.Enum
         Hide,
         [DataGridColumn("Width", 2, Description = "Width")]
         Width,
-        //[DataGridColumn("Group", 3, Description = "Group")]
-        //Group,
+        [DataGridColumn("Alignment", 3, Description = "Alignment")]
+        Alignment,
     }
 }

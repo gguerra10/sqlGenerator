@@ -31,6 +31,12 @@ namespace SqlGenerator.Forms
         {
             this.mainTableLayout = new System.Windows.Forms.TableLayoutPanel();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.colorGroupBox = new System.Windows.Forms.GroupBox();
+            this.backgroundColorButton = new System.Windows.Forms.Button();
+            this.alignmentGroupBox = new System.Windows.Forms.GroupBox();
+            this.rightRadioButton = new System.Windows.Forms.RadioButton();
+            this.centerRadioButton = new System.Windows.Forms.RadioButton();
+            this.leftRadioButton = new System.Windows.Forms.RadioButton();
             this.fontGroupBox = new System.Windows.Forms.GroupBox();
             this.fontSizeLabel = new System.Windows.Forms.Label();
             this.fontButton = new System.Windows.Forms.Button();
@@ -52,8 +58,11 @@ namespace SqlGenerator.Forms
             this.panel4 = new System.Windows.Forms.Panel();
             this.saveButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
+            this.foregroundColorButton = new System.Windows.Forms.Button();
             this.mainTableLayout.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.colorGroupBox.SuspendLayout();
+            this.alignmentGroupBox.SuspendLayout();
             this.fontGroupBox.SuspendLayout();
             this.orientationGroupBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.viewSplitContainer)).BeginInit();
@@ -89,6 +98,8 @@ namespace SqlGenerator.Forms
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.colorGroupBox);
+            this.panel1.Controls.Add(this.alignmentGroupBox);
             this.panel1.Controls.Add(this.fontGroupBox);
             this.panel1.Controls.Add(this.orientationGroupBox);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -97,14 +108,79 @@ namespace SqlGenerator.Forms
             this.panel1.Size = new System.Drawing.Size(114, 781);
             this.panel1.TabIndex = 1;
             // 
+            // colorGroupBox
+            // 
+            this.colorGroupBox.Controls.Add(this.foregroundColorButton);
+            this.colorGroupBox.Controls.Add(this.backgroundColorButton);
+            this.colorGroupBox.Location = new System.Drawing.Point(0, 346);
+            this.colorGroupBox.Name = "colorGroupBox";
+            this.colorGroupBox.Size = new System.Drawing.Size(117, 100);
+            this.colorGroupBox.TabIndex = 5;
+            this.colorGroupBox.TabStop = false;
+            this.colorGroupBox.Text = "Header Color";
+            // 
+            // backgroundColorButton
+            // 
+            this.backgroundColorButton.Location = new System.Drawing.Point(16, 22);
+            this.backgroundColorButton.Name = "backgroundColorButton";
+            this.backgroundColorButton.Size = new System.Drawing.Size(87, 23);
+            this.backgroundColorButton.TabIndex = 0;
+            this.backgroundColorButton.Text = "Background";
+            this.backgroundColorButton.UseVisualStyleBackColor = true;
+            this.backgroundColorButton.Click += new System.EventHandler(this.BackgroundColorButton_Click);
+            // 
+            // alignmentGroupBox
+            // 
+            this.alignmentGroupBox.Controls.Add(this.rightRadioButton);
+            this.alignmentGroupBox.Controls.Add(this.centerRadioButton);
+            this.alignmentGroupBox.Controls.Add(this.leftRadioButton);
+            this.alignmentGroupBox.Location = new System.Drawing.Point(0, 106);
+            this.alignmentGroupBox.Name = "alignmentGroupBox";
+            this.alignmentGroupBox.Size = new System.Drawing.Size(114, 128);
+            this.alignmentGroupBox.TabIndex = 4;
+            this.alignmentGroupBox.TabStop = false;
+            this.alignmentGroupBox.Text = "Alignment";
+            // 
+            // rightRadioButton
+            // 
+            this.rightRadioButton.AutoSize = true;
+            this.rightRadioButton.Location = new System.Drawing.Point(10, 93);
+            this.rightRadioButton.Name = "rightRadioButton";
+            this.rightRadioButton.Size = new System.Drawing.Size(53, 19);
+            this.rightRadioButton.TabIndex = 2;
+            this.rightRadioButton.Text = "Right";
+            this.rightRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // centerRadioButton
+            // 
+            this.centerRadioButton.AutoSize = true;
+            this.centerRadioButton.Location = new System.Drawing.Point(10, 57);
+            this.centerRadioButton.Name = "centerRadioButton";
+            this.centerRadioButton.Size = new System.Drawing.Size(73, 19);
+            this.centerRadioButton.TabIndex = 1;
+            this.centerRadioButton.Text = "Centered";
+            this.centerRadioButton.UseVisualStyleBackColor = true;
+            // 
+            // leftRadioButton
+            // 
+            this.leftRadioButton.AutoSize = true;
+            this.leftRadioButton.Checked = true;
+            this.leftRadioButton.Location = new System.Drawing.Point(10, 23);
+            this.leftRadioButton.Name = "leftRadioButton";
+            this.leftRadioButton.Size = new System.Drawing.Size(45, 19);
+            this.leftRadioButton.TabIndex = 0;
+            this.leftRadioButton.TabStop = true;
+            this.leftRadioButton.Text = "Left";
+            this.leftRadioButton.UseVisualStyleBackColor = true;
+            // 
             // fontGroupBox
             // 
             this.fontGroupBox.Controls.Add(this.fontSizeLabel);
             this.fontGroupBox.Controls.Add(this.fontButton);
             this.fontGroupBox.Controls.Add(this.fontsizeComboBox);
-            this.fontGroupBox.Location = new System.Drawing.Point(0, 106);
+            this.fontGroupBox.Location = new System.Drawing.Point(0, 240);
             this.fontGroupBox.Name = "fontGroupBox";
-            this.fontGroupBox.Size = new System.Drawing.Size(114, 100);
+            this.fontGroupBox.Size = new System.Drawing.Size(117, 100);
             this.fontGroupBox.TabIndex = 3;
             this.fontGroupBox.TabStop = false;
             this.fontGroupBox.Text = "Font";
@@ -218,6 +294,7 @@ namespace SqlGenerator.Forms
             this.designerDataGridView.TabIndex = 0;
             this.designerDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellContentClick);
             this.designerDataGridView.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellValidated);
+            this.designerDataGridView.CurrentCellDirtyStateChanged += new System.EventHandler(this.DesignerDataGridViewCurrentCellDirtyStateChanged);
             // 
             // previewGroupBox
             // 
@@ -286,6 +363,8 @@ namespace SqlGenerator.Forms
             // timestampCheckBox
             // 
             this.timestampCheckBox.AutoSize = true;
+            this.timestampCheckBox.Checked = true;
+            this.timestampCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.timestampCheckBox.Location = new System.Drawing.Point(458, 7);
             this.timestampCheckBox.Name = "timestampCheckBox";
             this.timestampCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
@@ -343,6 +422,16 @@ namespace SqlGenerator.Forms
             this.exportButton.UseVisualStyleBackColor = true;
             this.exportButton.Click += new System.EventHandler(this.ExportButton_Click);
             // 
+            // foregroundColorButton
+            // 
+            this.foregroundColorButton.Location = new System.Drawing.Point(16, 60);
+            this.foregroundColorButton.Name = "foregroundColorButton";
+            this.foregroundColorButton.Size = new System.Drawing.Size(87, 23);
+            this.foregroundColorButton.TabIndex = 0;
+            this.foregroundColorButton.Text = "Foreground";
+            this.foregroundColorButton.UseVisualStyleBackColor = true;
+            this.foregroundColorButton.Click += new System.EventHandler(this.ForegroundColorButton_Click);
+            // 
             // PdfDesignerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -354,6 +443,9 @@ namespace SqlGenerator.Forms
             this.Text = "Pdf Designer Form";
             this.mainTableLayout.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.colorGroupBox.ResumeLayout(false);
+            this.alignmentGroupBox.ResumeLayout(false);
+            this.alignmentGroupBox.PerformLayout();
             this.fontGroupBox.ResumeLayout(false);
             this.fontGroupBox.PerformLayout();
             this.orientationGroupBox.ResumeLayout(false);
@@ -399,5 +491,12 @@ namespace SqlGenerator.Forms
         private System.Windows.Forms.GroupBox fontGroupBox;
         private System.Windows.Forms.Label fontSizeLabel;
         private System.Windows.Forms.CheckBox timestampCheckBox;
+        private System.Windows.Forms.GroupBox alignmentGroupBox;
+        private System.Windows.Forms.RadioButton rightRadioButton;
+        private System.Windows.Forms.RadioButton centerRadioButton;
+        private System.Windows.Forms.RadioButton leftRadioButton;
+        private System.Windows.Forms.GroupBox colorGroupBox;
+        private System.Windows.Forms.Button backgroundColorButton;
+        private System.Windows.Forms.Button foregroundColorButton;
     }
 }

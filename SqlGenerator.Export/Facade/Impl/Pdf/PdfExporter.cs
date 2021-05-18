@@ -1,6 +1,7 @@
 ﻿using iTextSharp.text;
 using iTextSharp.text.pdf;
 using SqlGenerator.Export.Pdf;
+using SqlGenerator.Export.Pdf.Enum;
 using System;
 using System.Data;
 using System.Diagnostics;
@@ -42,7 +43,7 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
         private void GeneratePdf(string filePath, DataTable dataTable)
         {
             var document = new Document(PageSize.A4);
-            if (_pdfDesign.Landscape)
+            if (_pdfDesign.Orientation.Equals(PdfOrientation.Landscape))
             {
                 document = new Document(PageSize.A4.Rotate());
             }
@@ -62,8 +63,8 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
 
             if (_pdfDesign.Timestamp)
             {
-                var font = new Font(baseFont, _pdfDesign.FontSize);
-                var timestampParagraph = new Paragraph(DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"), font)
+                var font = new Font(baseFont, 8);
+                var timestampParagraph = new Paragraph($"Report generated at { DateTime.Now.ToString("HH:mm:ss dd/MM/yyyy") }", font)
                 {
                     Alignment = Element.ALIGN_RIGHT,
                     SpacingAfter = 20,
@@ -80,8 +81,20 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
         private void AddDataTable(ref Document document, DataTable dataTable)
         {
             var table = new PdfPTable(dataTable.Columns.Count);
+            switch (_pdfDesign.Alignment)
+            {
+                case PdfAlignment.Centered:
+                    table.HorizontalAlignment = Element.ALIGN_CENTER;
+                    break;
+                case PdfAlignment.RightAlignment:
+                    table.HorizontalAlignment = Element.ALIGN_RIGHT;
+                    break;
+                case PdfAlignment.LeftAlignment:
+                default:
+                    table.HorizontalAlignment = Element.ALIGN_LEFT;
+                    break;
+            }
 
-            table.HorizontalAlignment = Element.ALIGN_LEFT;
             table.DefaultCell.Padding = 1;
             table.DefaultCell.BorderWidth = 1;
             table.DefaultCell.HorizontalAlignment = Element.ALIGN_LEFT;
@@ -89,28 +102,25 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
             table.TotalWidth = _pdfDesign.DataCollection.Where(d => !d.Hidden).Sum(d => d.Width);
 
             var headerFont = new Font(baseFont, _pdfDesign.FontSize + 1);
+            headerFont.Color = new BaseColor(_pdfDesign.HeaderForegroundColor);
             var font = new Font(baseFont, _pdfDesign.FontSize);
 
             var widths = new float[dataTable.Columns.Count];
             int order = 0;
-            foreach (var dataDesign in _pdfDesign.DataCollection)
+            foreach (DataColumn dataColumn in dataTable.Columns)
             {
-                if (!dataDesign.Hidden)
-                {
-                    widths[order] = dataDesign.Width;
-                    order++;
-                }
+                widths[order] = _pdfDesign.DataCollection.First(d => d.Name.Equals(dataColumn.ColumnName)).Width;
+                order++;
             }
             table.SetTotalWidth(widths);
             table.LockedWidth = true;
-            //table.SetWidths(widths);
 
             // Convert the datatable header to the header of the PDFTable
             foreach (DataColumn dataColumn in dataTable.Columns)
             {
                 var cell = new PdfPCell(new Phrase(dataColumn.ColumnName.ToString(), headerFont))
                 {
-                    BackgroundColor = new BaseColor(0x03, 0x9b, 0xe5),
+                    BackgroundColor = new BaseColor(_pdfDesign.HeaderBackgroundColor),
                 };
 
                 table.AddCell(cell);
@@ -121,7 +131,23 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
             {
                 for (int j = 0; j < dataTable.Columns.Count; j++)
                 {
-                    table.AddCell(new PdfPCell(new Phrase(dataTable.Rows[i][j].ToString(), font)));
+                    var cell = new PdfPCell(new Phrase(dataTable.Rows[i][j].ToString(), font));
+                    var alignment = _pdfDesign.DataCollection.First(d => d.Name.Equals(dataTable.Columns[j].ColumnName)).Alignment;
+                    switch (alignment)
+                    {
+                        case PdfAlignment.Centered:
+                            cell.HorizontalAlignment = Element.ALIGN_CENTER;
+                            break;
+                        case PdfAlignment.RightAlignment:
+                            cell.HorizontalAlignment = Element.ALIGN_RIGHT;
+                            break;
+                        case PdfAlignment.LeftAlignment:
+                        default:
+                            cell.HorizontalAlignment = Element.ALIGN_LEFT;
+                            break;
+                    }
+
+                    table.AddCell(cell);
                 }
             }
 
