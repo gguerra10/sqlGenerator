@@ -53,6 +53,7 @@ namespace SqlGenerator.Forms
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.filtersCheckBox = new System.Windows.Forms.CheckBox();
             this.timestampCheckBox = new System.Windows.Forms.CheckBox();
             this.titleTextBox = new System.Windows.Forms.TextBox();
             this.titleLabel = new System.Windows.Forms.Label();
@@ -160,6 +161,7 @@ namespace SqlGenerator.Forms
             this.rightRadioButton.TabIndex = 2;
             this.rightRadioButton.Text = "Right";
             this.rightRadioButton.UseVisualStyleBackColor = true;
+            this.rightRadioButton.CheckedChanged += new System.EventHandler(this.AlignmentRadioButtonCheckedChanged);
             // 
             // centerRadioButton
             // 
@@ -170,6 +172,7 @@ namespace SqlGenerator.Forms
             this.centerRadioButton.TabIndex = 1;
             this.centerRadioButton.Text = "Centered";
             this.centerRadioButton.UseVisualStyleBackColor = true;
+            this.centerRadioButton.CheckedChanged += new System.EventHandler(this.AlignmentRadioButtonCheckedChanged);
             // 
             // leftRadioButton
             // 
@@ -182,6 +185,7 @@ namespace SqlGenerator.Forms
             this.leftRadioButton.TabStop = true;
             this.leftRadioButton.Text = "Left";
             this.leftRadioButton.UseVisualStyleBackColor = true;
+            this.leftRadioButton.CheckedChanged += new System.EventHandler(this.AlignmentRadioButtonCheckedChanged);
             // 
             // fontGroupBox
             // 
@@ -302,7 +306,6 @@ namespace SqlGenerator.Forms
             this.designerDataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.designerDataGridView.Size = new System.Drawing.Size(1092, 411);
             this.designerDataGridView.TabIndex = 0;
-            //this.designerDataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellContentClick);
             this.designerDataGridView.CellValidated += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellValidated);
             this.designerDataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DesignerDataGridViewCellValueChanged);
             this.designerDataGridView.CurrentCellDirtyStateChanged += new System.EventHandler(this.DesignerDataGridViewCurrentCellDirtyStateChanged);
@@ -362,6 +365,7 @@ namespace SqlGenerator.Forms
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.filtersCheckBox);
             this.panel3.Controls.Add(this.timestampCheckBox);
             this.panel3.Controls.Add(this.titleTextBox);
             this.panel3.Controls.Add(this.titleLabel);
@@ -370,6 +374,20 @@ namespace SqlGenerator.Forms
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(543, 28);
             this.panel3.TabIndex = 1;
+            // 
+            // filtersCheckBox
+            // 
+            this.filtersCheckBox.AutoSize = true;
+            this.filtersCheckBox.Checked = true;
+            this.filtersCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.filtersCheckBox.Location = new System.Drawing.Point(382, 7);
+            this.filtersCheckBox.Name = "filtersCheckBox";
+            this.filtersCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.filtersCheckBox.Size = new System.Drawing.Size(57, 19);
+            this.filtersCheckBox.TabIndex = 3;
+            this.filtersCheckBox.Text = "Filters";
+            this.filtersCheckBox.UseVisualStyleBackColor = true;
+            this.filtersCheckBox.CheckedChanged += new System.EventHandler(this.FiltersCheckBoxCheckedChanged);
             // 
             // timestampCheckBox
             // 
@@ -499,5 +517,6 @@ namespace SqlGenerator.Forms
         private System.Windows.Forms.GroupBox colorGroupBox;
         private System.Windows.Forms.Button backgroundColorButton;
         private System.Windows.Forms.Button foregroundColorButton;
+        private System.Windows.Forms.CheckBox filtersCheckBox;
     }
 }

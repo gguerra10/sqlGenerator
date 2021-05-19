@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlGenerator.Core", "SqlGen
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SqlGenerator.Export", "SqlGenerator.Export\SqlGenerator.Export.csproj", "{DBC1059F-F61F-4A0B-AC82-76E898CF0908}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlGenerator.Archive", "SqlGenerator.Archive\SqlGenerator.Archive.csproj", "{E92EF934-7053-4A43-9781-95CB636D46EE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{DBC1059F-F61F-4A0B-AC82-76E898CF0908}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DBC1059F-F61F-4A0B-AC82-76E898CF0908}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DBC1059F-F61F-4A0B-AC82-76E898CF0908}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E92EF934-7053-4A43-9781-95CB636D46EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E92EF934-7053-4A43-9781-95CB636D46EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E92EF934-7053-4A43-9781-95CB636D46EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E92EF934-7053-4A43-9781-95CB636D46EE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

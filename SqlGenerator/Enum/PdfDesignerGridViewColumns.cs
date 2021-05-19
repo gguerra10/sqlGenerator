@@ -6,8 +6,8 @@ namespace SqlGenerator.Enum
     {
         [DataGridColumn("Data", 0, Description = "Data")]
         Data,
-        [DataGridColumn("Hide", 1, Description = "Hide")]
-        Hide,
+        [DataGridColumn("Show", 1, Description = "Show")]
+        Show,
         [DataGridColumn("Width", 2, Description = "Width")]
         Width,
         [DataGridColumn("Alignment", 3, Description = "Alignment")]

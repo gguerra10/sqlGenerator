@@ -6,12 +6,11 @@ namespace SqlGenerator.Export.Pdf
     {
         public string Name { get; set; }
 
-        public bool Hidden { get; set; }
+        public bool Show { get; set; }
 
         public float Width { get; set; }
 
         public PdfAlignment Alignment { get; set; }
 
-        public bool Grouped { get; set; }
     }
 }

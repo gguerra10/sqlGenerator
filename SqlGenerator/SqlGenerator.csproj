@@ -7,13 +7,10 @@
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SqlGenerator.Core\SqlGenerator.Core.csproj" />
+    <ProjectReference Include="..\SqlGenerator.Archive\SqlGenerator.Archive.csproj" />
     <ProjectReference Include="..\SqlGenerator.Export\SqlGenerator.Export.csproj" />
   </ItemGroup>
 

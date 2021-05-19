@@ -23,7 +23,7 @@ namespace SqlGenerator
             IEnumerable<SqlOrder> orders,
             int limit = 0)
         {
-            AggregationCheck(selects, groups);
+            //SelectAggregationCheck(selects, groups);
 
             var sql = $"SELECT" + "\r\n";
 
@@ -126,7 +126,7 @@ namespace SqlGenerator
             return sql;
         }
 
-        private void AggregationCheck(
+        public void SelectAggregationCheck(
             IEnumerable<SqlSelect> selects,
             IEnumerable<SqlGroup> groups)
         {
