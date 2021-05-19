@@ -517,9 +517,11 @@ namespace SqlGenerator.Forms
             this.columnsGridView.Location = new System.Drawing.Point(3, 19);
             this.columnsGridView.Name = "columnsGridView";
             this.columnsGridView.RowTemplate.Height = 25;
+            this.columnsGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
             this.columnsGridView.Size = new System.Drawing.Size(698, 310);
             this.columnsGridView.TabIndex = 0;
             this.columnsGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.ColumnsGridViewCellContentClick);
+            this.columnsGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.ColumnsGridViewCellValueChanged);
             this.columnsGridView.CurrentCellDirtyStateChanged += new System.EventHandler(this.ColumnsGridViewCurrentCellDirtyStateChanged);
             // 
             // outputTableLayout

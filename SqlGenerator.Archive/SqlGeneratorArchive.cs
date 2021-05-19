@@ -2,28 +2,28 @@
 using System.IO;
 
 
-namespace SqlGenerator.File
+namespace SqlGenerator.Archive
 {
-    public class QueryGeneratorFile
+    public class SqlGeneratorArchive
     {
         public string FilePath { get; internal set; }
 
-        public QueryGeneratorFileContent Content { get; set; }
+        public SqlGeneratorArchiveData Data { get; set; }
 
-        public QueryGeneratorFile()
+        public SqlGeneratorArchive()
         {
-            Content = new QueryGeneratorFileContent();
+            Data = new SqlGeneratorArchiveData();
         }
 
-        public QueryGeneratorFile(string filePath, QueryGeneratorFileContent content)
+        public SqlGeneratorArchive(string filePath, SqlGeneratorArchiveData content)
         {
             FilePath = filePath;
-            Content = content;
+            Data = content;
         }
 
-        public QueryGeneratorFile(QueryGeneratorFileContent content)
+        public SqlGeneratorArchive(SqlGeneratorArchiveData content)
         {
-            Content = content;
+            Data = content;
         }
 
         public void Load(string filePath)
@@ -35,7 +35,7 @@ namespace SqlGenerator.File
             {
                 content = sr.ReadToEnd();
             }
-            Content = JsonConvert.DeserializeObject<QueryGeneratorFileContent>(content);
+            Data = JsonConvert.DeserializeObject<SqlGeneratorArchiveData>(content);
         }
 
         public void Save(string filePath = null)
@@ -44,7 +44,7 @@ namespace SqlGenerator.File
             {
                 FilePath = filePath;
             }
-            var content = JsonConvert.SerializeObject(Content, Formatting.Indented);
+            var content = JsonConvert.SerializeObject(Data, Formatting.Indented);
             using (var sw = new StreamWriter(FilePath))
             {
                 sw.Write(content);

@@ -4,7 +4,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
-using SqlGenerator.File;
+using SqlGenerator.Archive;
 using SqlGenerator.Extension;
 using SqlGenerator.Row;
 using SqlGenerator.Core.Facade;
@@ -15,13 +15,14 @@ using SqlGenerator.Export.Facade;
 using SqlGenerator.Enum;
 using SqlGenerator.Export.Facade.Impl.Csv;
 using SqlGenerator.Export.Facade.Impl.Excel;
+using SqlGenerator.Archive.Content;
 
 namespace SqlGenerator.Forms
 {
     public partial class SelectorForm : Form
     {
         private SqlGenerator sqlGenerator;
-        private QueryGeneratorFile _queryGeneratorFile;
+        private SqlGeneratorArchive _sqlGeneratorArchive;
 
         private IDatabase _database;
         private IExporter _exporter;
@@ -74,9 +75,9 @@ namespace SqlGenerator.Forms
             if (result == DialogResult.OK)
             {
                 _database = connectionForm.Database;
-                _queryGeneratorFile = new QueryGeneratorFile();
-                _queryGeneratorFile.Content.DatabaseType = connectionForm.DatabaseType;
-                _queryGeneratorFile.Content.ConnectionString = _database.ConnectionString;
+                _sqlGeneratorArchive = new SqlGeneratorArchive();
+                _sqlGeneratorArchive.Data.DatabaseType = connectionForm.DatabaseType;
+                _sqlGeneratorArchive.Data.ConnectionString = _database.ConnectionString;
 
                 sqlGenerator.SetDatabaseType(connectionForm.DatabaseType);
 
@@ -94,8 +95,8 @@ namespace SqlGenerator.Forms
         {
             // Open Connection Form to set connection string
             var connectionForm = new ConnectionForm(
-                _queryGeneratorFile.Content.DatabaseType,
-                _queryGeneratorFile.Content.ConnectionString
+                _sqlGeneratorArchive.Data.DatabaseType,
+                _sqlGeneratorArchive.Data.ConnectionString
                 )
             {
                 StartPosition = FormStartPosition.CenterParent
@@ -105,8 +106,8 @@ namespace SqlGenerator.Forms
             {
                 _database = connectionForm.Database;
 
-                _queryGeneratorFile.Content.DatabaseType = connectionForm.DatabaseType;
-                _queryGeneratorFile.Content.ConnectionString = _database.ConnectionString;
+                _sqlGeneratorArchive.Data.DatabaseType = connectionForm.DatabaseType;
+                _sqlGeneratorArchive.Data.ConnectionString = _database.ConnectionString;
 
                 sqlGenerator.SetDatabaseType(connectionForm.DatabaseType);
 
@@ -129,14 +130,14 @@ namespace SqlGenerator.Forms
 
                 try
                 {
-                    _queryGeneratorFile = new QueryGeneratorFile();
-                    _queryGeneratorFile.Load(openFileDialog.FileName);
+                    _sqlGeneratorArchive = new SqlGeneratorArchive();
+                    _sqlGeneratorArchive.Load(openFileDialog.FileName);
 
-                    _database = new DatabaseFactory().GetDatabase(_queryGeneratorFile.Content.DatabaseType);
-                    _database.ConnectionString = _queryGeneratorFile.Content.ConnectionString;
+                    _database = new DatabaseFactory().GetDatabase(_sqlGeneratorArchive.Data.DatabaseType);
+                    _database.ConnectionString = _sqlGeneratorArchive.Data.ConnectionString;
                     if (_database.Load())
                     {
-                        sqlGenerator.SetDatabaseType(_queryGeneratorFile.Content.DatabaseType);
+                        sqlGenerator.SetDatabaseType(_sqlGeneratorArchive.Data.DatabaseType);
 
                         // Enable / disable menu items
                         editToolStripMenuItem.Enabled = true;
@@ -148,7 +149,7 @@ namespace SqlGenerator.Forms
 
                         if (_database.Tables.Any())
                         {
-                            var selectedTable = databaseTreeView.SearchRecursive(_queryGeneratorFile.Content.Tables.First().TableName.ToString());
+                            var selectedTable = databaseTreeView.SearchRecursive(_sqlGeneratorArchive.Data.Tables.First().TableName.ToString());
                             if (selectedTable != null)
                             {
                                 databaseTreeView.AfterSelect -= DatabaseTreeViewAfterSelect;
@@ -158,7 +159,7 @@ namespace SqlGenerator.Forms
 
                             tablesGridView.Rows.Clear();
 
-                            foreach (var fileTable in _queryGeneratorFile.Content.Tables)
+                            foreach (var fileTable in _sqlGeneratorArchive.Data.Tables)
                             {
                                 var table = (ITable)databaseTreeView.SearchRecursive(fileTable.TableName).Tag;
                                 var tablesGridViewRow = new TablesGridViewRow()
@@ -170,7 +171,7 @@ namespace SqlGenerator.Forms
                             }
 
                             columnsGridView.Rows.Clear();
-                            foreach (var fileColumn in _queryGeneratorFile.Content.Columns)
+                            foreach (var fileColumn in _sqlGeneratorArchive.Data.Columns)
                             {
                                 // Find table
                                 var table = (ITable)databaseTreeView.SearchRecursive(fileColumn.TableName).Tag;
@@ -195,7 +196,7 @@ namespace SqlGenerator.Forms
                             MessageBox.Show("Database has no tables.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         }
 
-                        limitTextBox.Text = _queryGeneratorFile.Content.Options.Limit.ToString();
+                        limitTextBox.Text = _sqlGeneratorArchive.Data.Options.Limit.ToString();
 
                         BuildSql();
                     }
@@ -213,7 +214,7 @@ namespace SqlGenerator.Forms
 
         private void SaveFile()
         {
-            _queryGeneratorFile.Save();
+            _sqlGeneratorArchive.Save();
         }
 
         private void SaveAsFile()
@@ -226,7 +227,7 @@ namespace SqlGenerator.Forms
             var result = saveFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                _queryGeneratorFile.Save(saveFileDialog.FileName);
+                _sqlGeneratorArchive.Save(saveFileDialog.FileName);
 
                 // Enable / disable menu items
                 saveToolStripMenuItem.Enabled = true;
@@ -308,12 +309,12 @@ namespace SqlGenerator.Forms
 
         private void PdfToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var pdfDesigner = new PdfDesignerForm(resultGridView.DataSource as DataTable, ref _queryGeneratorFile)
+            var pdfDesigner = new PdfDesignerForm(resultGridView.DataSource as DataTable, _sqlGeneratorArchive)
             {
                 StartPosition = FormStartPosition.CenterParent,
             };
             pdfDesigner.ShowDialog();
-            _queryGeneratorFile = pdfDesigner.QueryGeneratorFile;
+            _sqlGeneratorArchive = pdfDesigner.QueryGeneratorFile;
         }
 
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -403,7 +404,7 @@ namespace SqlGenerator.Forms
                         ColumnsGridViewRowAddRow(columnsGridViewRow);
                     }
 
-                    UpdateQueryGeneratorFile();
+                    UpdateSgfArchiveContent();
                     BuildSql();
                 }
             }
@@ -476,7 +477,7 @@ namespace SqlGenerator.Forms
 
                 tablesGridView.AutoSizeColumns();
 
-                UpdateQueryGeneratorFile();
+                UpdateSgfArchiveContent();
                 BuildSql();
             }
         }
@@ -557,7 +558,7 @@ namespace SqlGenerator.Forms
                     }
 
 
-                    UpdateQueryGeneratorFile();
+                    UpdateSgfArchiveContent();
                     BuildSql();
                 }
             }
@@ -578,7 +579,7 @@ namespace SqlGenerator.Forms
 
         private void TablesGridViewUserDeletedRow(object sender, DataGridViewRowEventArgs e)
         {
-            UpdateQueryGeneratorFile();
+            UpdateSgfArchiveContent();
             BuildSql();
         }
 
@@ -622,6 +623,7 @@ namespace SqlGenerator.Forms
             {
                 Name = ColumnsGridViewColumns.TableName.GetName(),
                 HeaderText = ColumnsGridViewColumns.TableName.GetDescription(),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
                 ReadOnly = true,
             };
             columnsGridView.Columns.Add(tableName);
@@ -631,6 +633,7 @@ namespace SqlGenerator.Forms
             {
                 Name = ColumnsGridViewColumns.ColumnName.GetName(),
                 HeaderText = ColumnsGridViewColumns.ColumnName.GetDescription(),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
                 ReadOnly = true,
             };
             columnsGridView.Columns.Add(columnName);
@@ -641,7 +644,7 @@ namespace SqlGenerator.Forms
                 Name = ColumnsGridViewColumns.Selected.GetName(),
                 HeaderText = ColumnsGridViewColumns.Selected.GetDescription(),
                 Resizable = DataGridViewTriState.True,
-                SortMode = DataGridViewColumnSortMode.Automatic,
+                SortMode = DataGridViewColumnSortMode.NotSortable,
             };
             columnsGridView.Columns.Add(columnSelected);
 
@@ -650,6 +653,7 @@ namespace SqlGenerator.Forms
             {
                 Name = ColumnsGridViewColumns.Alias.GetName(),
                 HeaderText = ColumnsGridViewColumns.Alias.GetDescription(),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
             };
             columnsGridView.Columns.Add(columnAlias);
 
@@ -659,6 +663,7 @@ namespace SqlGenerator.Forms
                 Name = ColumnsGridViewColumns.Condition.GetName(),
                 Text = ColumnsGridViewColumns.Condition.GetName(),
                 HeaderText = ColumnsGridViewColumns.Condition.GetDescription(),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
             };
             columnsGridView.Columns.Add(columnCondition);
 
@@ -671,6 +676,7 @@ namespace SqlGenerator.Forms
                 DisplayMember = "Display",
                 ValueMember = "Value",
                 DataSource = System.Enum.GetValues(typeof(GroupType)).OfType<GroupType>().ToList().Select(value => new { Value = value, Display = value.ToString() }).ToList(),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
             };
             columnsGridView.Columns.Add(columnGroup);
 
@@ -683,6 +689,7 @@ namespace SqlGenerator.Forms
                 DisplayMember = "Display",
                 ValueMember = "Value",
                 DataSource = System.Enum.GetValues(typeof(AggregationType)).OfType<AggregationType>().ToList().Select(value => new { Value = value, Display = value.ToString() }).ToList(),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
             };
             columnsGridView.Columns.Add(columnAggregation);
 
@@ -695,6 +702,7 @@ namespace SqlGenerator.Forms
                 DisplayMember = "Display",
                 ValueMember = "Value",
                 DataSource = System.Enum.GetValues(typeof(OrderType)).OfType<OrderType>().ToList().Select(value => new { Value = value, Display = value.ToString() }).ToList(),
+                SortMode = DataGridViewColumnSortMode.NotSortable,
             };
             columnsGridView.Columns.Add(columnOrder);
         }
@@ -761,10 +769,12 @@ namespace SqlGenerator.Forms
         /// <param name="e"></param>
         private void ColumnsGridViewCurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
-            Debug.WriteLine("CurrentCellDirtyStateChanged");
-
-            UpdateQueryGeneratorFile();
-            BuildSql();
+            if (columnsGridView.IsCurrentCellDirty)
+            {
+                columnsGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+                UpdateSgfArchiveContent();
+                BuildSql();
+            }
         }
 
 
@@ -802,13 +812,12 @@ namespace SqlGenerator.Forms
 
                     columnsGridView.AutoSizeColumns();
 
-                    UpdateQueryGeneratorFile();
+                    UpdateSgfArchiveContent();
                     BuildSql();
-                }
+                }/*
                 else if (e.ColumnIndex.Equals(ColumnsGridViewColumns.Selected.GetPosition()) &&
                     senderGrid.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn && e.RowIndex >= 0)
                 {
-                    senderGrid.EndEdit();
                     // Handle selected checkbox button clicked, selection
                     var dataGridViewCheckBoxCell = (DataGridViewCheckBoxCell)senderGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
                     if (Convert.ToBoolean(dataGridViewCheckBoxCell.Value))
@@ -822,6 +831,33 @@ namespace SqlGenerator.Forms
 
                     UpdateQueryGeneratorFile();
                     BuildSql();
+                }*/
+            }
+        }
+
+        private void ColumnsGridViewCellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            var senderGrid = (DataGridView)sender;
+            if (e.RowIndex >= 0)
+            {
+                var tableScheme = (ITable)senderGrid.Rows[e.RowIndex].Cells[ColumnsGridViewColumns.TableName.GetPosition()].Tag;
+                var columnScheme = (IColumn)senderGrid.Rows[e.RowIndex].Cells[ColumnsGridViewColumns.ColumnName.GetPosition()].Tag;
+                if (e.ColumnIndex.Equals(ColumnsGridViewColumns.Selected.GetPosition()) &&
+                    senderGrid.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn && e.RowIndex >= 0)
+                {
+                    // Handle selected checkbox button clicked, selection
+                    var dataGridViewCheckBoxCell = (DataGridViewCheckBoxCell)senderGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+                    if (Convert.ToBoolean(dataGridViewCheckBoxCell.Value))
+                    {
+                        Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " selected");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " unselected");
+                    }
+
+                    UpdateSgfArchiveContent();
+                    BuildSql();
                 }
             }
         }
@@ -832,24 +868,24 @@ namespace SqlGenerator.Forms
         /// <summary>
         /// Keep selection in file
         /// </summary>
-        private void UpdateQueryGeneratorFile()
+        private void UpdateSgfArchiveContent()
         {
-            _queryGeneratorFile.Content.Tables.Clear();
+            _sqlGeneratorArchive.Data.Tables.Clear();
             foreach (DataGridViewRow row in tablesGridView.Rows)
             {
-                var fileTable = new QueryGeneratorFileTableContent()
+                var fileTable = new ArchiveTable()
                 {
                     TableName = row.Cells[TablesGridViewColumns.TableName.GetPosition()].Value.ToString(),
                     Join = (SqlJoin)(row.Cells[TablesGridViewColumns.Join.GetPosition()].Tag)
                 };
-                _queryGeneratorFile.Content.Tables.Add(fileTable);
+                _sqlGeneratorArchive.Data.Tables.Add(fileTable);
             }
 
-            _queryGeneratorFile.Content.Columns.Clear();
+            _sqlGeneratorArchive.Data.Columns.Clear();
             foreach (DataGridViewRow row in columnsGridView.Rows)
             {
                 var checkBoxCell = ((DataGridViewCheckBoxCell)row.Cells[ColumnsGridViewColumns.Selected.GetPosition()]);
-                var fileColumn = new QueryGeneratorFileColumnContent()
+                var fileColumn = new ArchiveColumn()
                 {
                     TableName = row.Cells[ColumnsGridViewColumns.TableName.GetPosition()].Value.ToString(),
                     ColumnName = row.Cells[ColumnsGridViewColumns.ColumnName.GetPosition()].Value.ToString(),
@@ -860,10 +896,10 @@ namespace SqlGenerator.Forms
                     Agreggation = (AggregationType)System.Enum.Parse(typeof(AggregationType), ((DataGridViewComboBoxCell)row.Cells[ColumnsGridViewColumns.Aggregation.GetPosition()]).EditedFormattedValue.ToString()),
                     Order = (OrderType)System.Enum.Parse(typeof(OrderType), ((DataGridViewComboBoxCell)row.Cells[ColumnsGridViewColumns.Order.GetPosition()]).EditedFormattedValue.ToString()),
                 };
-                _queryGeneratorFile.Content.Columns.Add(fileColumn);
+                _sqlGeneratorArchive.Data.Columns.Add(fileColumn);
             }
 
-            _queryGeneratorFile.Content.Options.Limit = Convert.ToUInt32(limitTextBox.Text);
+            _sqlGeneratorArchive.Data.Options.Limit = Convert.ToUInt32(limitTextBox.Text);
 
         }
         /// <summary>
@@ -877,24 +913,24 @@ namespace SqlGenerator.Forms
             var sqlWheres = new List<SqlCondition>();
             var sqlGroups = new List<SqlGroup>();
             var sqlOrders = new List<SqlOrder>();
-            for (int i = 0; i < _queryGeneratorFile.Content.Tables.Count; i++)
+            for (int i = 0; i < _sqlGeneratorArchive.Data.Tables.Count; i++)
             {
                 if (i == 0)
                 {
                     // Principal table is the first one
-                    sqlTable = _queryGeneratorFile.Content.Tables[i].TableName;
+                    sqlTable = _sqlGeneratorArchive.Data.Tables[i].TableName;
                 }
                 else
                 {
                     // All the others are joins
-                    if (_queryGeneratorFile.Content.Tables[i].Join != null)
+                    if (_sqlGeneratorArchive.Data.Tables[i].Join != null)
                     {
-                        sqlJoins.Add(_queryGeneratorFile.Content.Tables[i].Join);
+                        sqlJoins.Add(_sqlGeneratorArchive.Data.Tables[i].Join);
                     }
                 }
             }
 
-            foreach (var column in _queryGeneratorFile.Content.Columns)
+            foreach (var column in _sqlGeneratorArchive.Data.Columns)
             {
                 // Add select if requested
                 if (column.Selected)
@@ -938,20 +974,24 @@ namespace SqlGenerator.Forms
 
             try
             {
+
+
+                // Generate Sql
+                var sql = sqlGenerator.Select(
+                    sqlSelects,
+                    sqlTable,
+                    sqlJoins,
+                    sqlWheres,
+                    sqlGroups,
+                    sqlOrders,
+                    sqlLimit);
+
+                // Show sql
+                sqlTextBox.Text = sql;
                 if (automaticCheckBox.Checked)
                 {
-                    // Generate Sql
-                    var sql = sqlGenerator.Select(
-                        sqlSelects, 
-                        sqlTable, 
-                        sqlJoins, 
-                        sqlWheres, 
-                        sqlGroups, 
-                        sqlOrders, 
-                        sqlLimit);
-
-                    // Show sql
-                    sqlTextBox.Text = sql;
+                    // Check aggregation
+                    sqlGenerator.SelectAggregationCheck(sqlSelects, sqlGroups);
 
                     // Execute Sql
                     ExecuteSql(sql);
@@ -960,7 +1000,7 @@ namespace SqlGenerator.Forms
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 resultLabel.Text = $"Error: {ex.Message}.";
                 automaticCheckBox.Checked = false;
             }
@@ -1002,18 +1042,29 @@ namespace SqlGenerator.Forms
 
         private void LimitTextBoxTextChanged(object sender, EventArgs e)
         {
-            UpdateQueryGeneratorFile();
+            UpdateSgfArchiveContent();
             BuildSql();
         }
 
         private void AutomaticCheckBoxCheckedChanged(object sender, EventArgs e)
         {
             executeSqlButton.Visible = !automaticCheckBox.Checked;
+            if(automaticCheckBox.Checked)
+            {
+                ExecuteSql(sqlTextBox.Text);
+            }
         }
 
         private void SqlEditableCheckBoxCheckedChanged(object sender, EventArgs e)
         {
-            // TODO:
+            sqlTextBox.ReadOnly = !sqlEditableCheckBox.Checked;
+            tablesGridView.Enabled = !sqlEditableCheckBox.Checked;
+            columnsGridView.Enabled = !sqlEditableCheckBox.Checked;
+            if(automaticCheckBox.Checked && sqlEditableCheckBox.Checked)
+            {
+                automaticCheckBox.Checked = false;
+            }
+
         }
 
         private void ExecuteSqlButton_Click(object sender, EventArgs e)
@@ -1024,7 +1075,9 @@ namespace SqlGenerator.Forms
 
         private void SelectorForm_Shown(object sender, EventArgs e)
         {
-            //NewFile();
+            // Nothing to do.
         }
+
+
     }
 }

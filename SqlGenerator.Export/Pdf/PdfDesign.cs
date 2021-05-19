@@ -8,6 +8,8 @@ namespace SqlGenerator.Export.Pdf
     {
         public string Title { get; set; }
 
+        public bool Filters { get; set; }
+
         public bool Timestamp { get; set; }
 
         public int FontSize { get; set; }

@@ -151,7 +151,7 @@ namespace SqlGenerator.Forms
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(88, 27);
             this.okButton.TabIndex = 24;
-            this.okButton.Text = "&Aceptar";
+            this.okButton.Text = "&Acept";
             // 
             // AboutBox
             // 
@@ -169,7 +169,7 @@ namespace SqlGenerator.Forms
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "AboutBox";
+            this.Text = "About";
             this.tableLayoutPanel.ResumeLayout(false);
             this.tableLayoutPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).EndInit();

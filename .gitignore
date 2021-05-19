@@ -4,3 +4,6 @@ SqlGenerator.Core/obj/
 SqlGenerator.Export/obj/
 SqlGenerator/bin/
 SqlGenerator/obj/
+SqlGenerator.Archive/bin/
+SqlGenerator.Archive/obj/
+SqlGenerator.Export/bin/
