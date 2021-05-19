@@ -11,24 +11,24 @@ namespace SqlGenerator.Core.Factory
 
         public IDatabase GetDatabase(DatabaseType databaseType)
         {
-            IDatabase databaseScheme = null;
+            IDatabase database = null;
 
             switch(databaseType)
             {
                 case DatabaseType.SQLite:
-                    databaseScheme = new SqliteDatabase();
+                    database = new SqliteDatabase();
                     break;
                 case DatabaseType.SQLServer:
-                    databaseScheme = new SqlServerDatabase();
+                    database = new SqlServerDatabase();
                     break;
                 case DatabaseType.MySQL:
-                    databaseScheme = new MySqlDatabase();
+                    database = new MySqlDatabase();
                     break;
                 default:
                     break;
             }
 
-            return databaseScheme;
+            return database;
         }
     }
 }

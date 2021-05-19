@@ -46,6 +46,7 @@ namespace SqlGenerator.Core.Facade.Impl.SqlServer
                         var schemaName = dataReader[0].ToString();
                         var tableName = dataReader[1].ToString();
                         var columnName = dataReader[2].ToString();
+                        var columnDataType = dataReader[3].ToString();
 
                         var table = new SqlServerTable(schemaName, tableName);
                         if (tables.Any(t => t.Equals(table)))
@@ -54,13 +55,19 @@ namespace SqlGenerator.Core.Facade.Impl.SqlServer
                             var sqlserverTable = tables.Find(t => t.Equals(table)) as SqlServerTable;
                             if (sqlserverTable != null)
                             {
-                                sqlserverTable.columns.Add(new BaseColumn(columnName));
+                                sqlserverTable.columns.Add(new SqlServerColumn(columnName)
+                                {
+                                    DataType = columnDataType,
+                                });
                             }
                         }
                         else
                         {
                             // New table, must add table and column
-                            table.columns.Add(new BaseColumn(columnName));
+                            table.columns.Add(new SqlServerColumn(columnName)
+                            {
+                                DataType = columnDataType,
+                            });
                             tables.Add(table);
                         }
                     }

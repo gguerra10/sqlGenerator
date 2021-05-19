@@ -111,7 +111,9 @@ namespace SqlGenerator.Forms
 
                 sqlGenerator.SetDatabaseType(connectionForm.DatabaseType);
 
-                DatabaseTreeViewAddNodes();
+                sqlGenerator.SetDatabaseType(_sqlGeneratorArchive.Data.DatabaseType);
+
+                RefreshView();
             }
         }
 
@@ -135,75 +137,11 @@ namespace SqlGenerator.Forms
 
                     _database = new DatabaseFactory().GetDatabase(_sqlGeneratorArchive.Data.DatabaseType);
                     _database.ConnectionString = _sqlGeneratorArchive.Data.ConnectionString;
-                    if (_database.Load())
-                    {
-                        sqlGenerator.SetDatabaseType(_sqlGeneratorArchive.Data.DatabaseType);
 
-                        // Enable / disable menu items
-                        editToolStripMenuItem.Enabled = true;
-                        mainSplitContainer.Visible = true;
-                        saveToolStripMenuItem.Enabled = true;
-                        saveAsToolStripMenuItem.Enabled = true;
+                    sqlGenerator.SetDatabaseType(_sqlGeneratorArchive.Data.DatabaseType);
 
-                        DatabaseTreeViewAddNodes();
+                    RefreshView();
 
-                        if (_database.Tables.Any())
-                        {
-                            var selectedTable = databaseTreeView.SearchRecursive(_sqlGeneratorArchive.Data.Tables.First().TableName.ToString());
-                            if (selectedTable != null)
-                            {
-                                databaseTreeView.AfterSelect -= DatabaseTreeViewAfterSelect;
-                                databaseTreeView.SelectedNode = selectedTable;
-                                databaseTreeView.AfterSelect += DatabaseTreeViewAfterSelect;
-                            }
-
-                            tablesGridView.Rows.Clear();
-
-                            foreach (var fileTable in _sqlGeneratorArchive.Data.Tables)
-                            {
-                                var table = (ITable)databaseTreeView.SearchRecursive(fileTable.TableName).Tag;
-                                var tablesGridViewRow = new TablesGridViewRow()
-                                {
-                                    Table = table,
-                                    Join = fileTable.Join
-                                };
-                                TablesGridViewAddRow(tablesGridViewRow);
-                            }
-
-                            columnsGridView.Rows.Clear();
-                            foreach (var fileColumn in _sqlGeneratorArchive.Data.Columns)
-                            {
-                                // Find table
-                                var table = (ITable)databaseTreeView.SearchRecursive(fileColumn.TableName).Tag;
-                                var column = (IColumn)databaseTreeView.SearchRecursive(fileColumn.ColumnName).Tag;
-                                var columnGridViewRow = new ColumnsGridViewRow()
-                                {
-                                    Table = table,
-                                    Column = column,
-                                    Selected = fileColumn.Selected,
-                                    Alias = fileColumn.Alias,
-                                    Condition = fileColumn.Condition,
-                                    Group = fileColumn.Group,
-                                    Agreggation = fileColumn.Agreggation,
-                                    Order = fileColumn.Order,
-
-                                };
-                                ColumnsGridViewRowAddRow(columnGridViewRow);
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("Database has no tables.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        }
-
-                        limitTextBox.Text = _sqlGeneratorArchive.Data.Options.Limit.ToString();
-
-                        BuildSql();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Database unreachable.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -335,6 +273,7 @@ namespace SqlGenerator.Forms
 
         #region Tables tree view
 
+        
 
         /// <summary>
         /// Populate tables tree view from databaseScheme
@@ -404,7 +343,7 @@ namespace SqlGenerator.Forms
                         ColumnsGridViewRowAddRow(columnsGridViewRow);
                     }
 
-                    UpdateSgfArchiveContent();
+                    UpdateSqlGeneratorArchiveContent();
                     BuildSql();
                 }
             }
@@ -477,7 +416,7 @@ namespace SqlGenerator.Forms
 
                 tablesGridView.AutoSizeColumns();
 
-                UpdateSgfArchiveContent();
+                UpdateSqlGeneratorArchiveContent();
                 BuildSql();
             }
         }
@@ -558,7 +497,7 @@ namespace SqlGenerator.Forms
                     }
 
 
-                    UpdateSgfArchiveContent();
+                    UpdateSqlGeneratorArchiveContent();
                     BuildSql();
                 }
             }
@@ -579,7 +518,7 @@ namespace SqlGenerator.Forms
 
         private void TablesGridViewUserDeletedRow(object sender, DataGridViewRowEventArgs e)
         {
-            UpdateSgfArchiveContent();
+            UpdateSqlGeneratorArchiveContent();
             BuildSql();
         }
 
@@ -772,7 +711,7 @@ namespace SqlGenerator.Forms
             if (columnsGridView.IsCurrentCellDirty)
             {
                 columnsGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                UpdateSgfArchiveContent();
+                UpdateSqlGeneratorArchiveContent();
                 BuildSql();
             }
         }
@@ -812,7 +751,7 @@ namespace SqlGenerator.Forms
 
                     columnsGridView.AutoSizeColumns();
 
-                    UpdateSgfArchiveContent();
+                    UpdateSqlGeneratorArchiveContent();
                     BuildSql();
                 }/*
                 else if (e.ColumnIndex.Equals(ColumnsGridViewColumns.Selected.GetPosition()) &&
@@ -856,7 +795,7 @@ namespace SqlGenerator.Forms
                         Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " unselected");
                     }
 
-                    UpdateSgfArchiveContent();
+                    UpdateSqlGeneratorArchiveContent();
                     BuildSql();
                 }
             }
@@ -865,10 +804,86 @@ namespace SqlGenerator.Forms
         #endregion
 
 
+        private void RefreshView()
+        {
+            if (_database.Load())
+            {
+                // Enable / disable menu items
+                editToolStripMenuItem.Enabled = true;
+                mainSplitContainer.Visible = true;
+                saveToolStripMenuItem.Enabled = true;
+                saveAsToolStripMenuItem.Enabled = true;
+
+                DatabaseTreeViewAddNodes();
+
+                if (_database.Tables.Any())
+                {
+                    if (_sqlGeneratorArchive.Data.Tables.Any())
+                    {
+                        var firstTable = _sqlGeneratorArchive.Data.Tables.First();
+                        var selectedTable = databaseTreeView.SearchRecursive(firstTable.TableName.ToString());
+                        if (selectedTable != null)
+                        {
+                            databaseTreeView.AfterSelect -= DatabaseTreeViewAfterSelect;
+                            databaseTreeView.SelectedNode = selectedTable;
+                            databaseTreeView.AfterSelect += DatabaseTreeViewAfterSelect;
+                        }
+                    }
+
+                    tablesGridView.Rows.Clear();
+
+                    foreach (var fileTable in _sqlGeneratorArchive.Data.Tables)
+                    {
+                        var table = (ITable)databaseTreeView.SearchRecursive(fileTable.TableName).Tag;
+                        var tablesGridViewRow = new TablesGridViewRow()
+                        {
+                            Table = table,
+                            Join = fileTable.Join
+                        };
+                        TablesGridViewAddRow(tablesGridViewRow);
+                    }
+
+                    columnsGridView.Rows.Clear();
+                    foreach (var fileColumn in _sqlGeneratorArchive.Data.Columns)
+                    {
+                        // Find table
+                        var table = (ITable)databaseTreeView.SearchRecursive(fileColumn.TableName).Tag;
+                        var column = (IColumn)databaseTreeView.SearchRecursive(fileColumn.ColumnName).Tag;
+                        var columnGridViewRow = new ColumnsGridViewRow()
+                        {
+                            Table = table,
+                            Column = column,
+                            Selected = fileColumn.Selected,
+                            Alias = fileColumn.Alias,
+                            Condition = fileColumn.Condition,
+                            Group = fileColumn.Group,
+                            Agreggation = fileColumn.Agreggation,
+                            Order = fileColumn.Order,
+
+                        };
+                        ColumnsGridViewRowAddRow(columnGridViewRow);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Database has no tables.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+
+                limitTextBox.Text = _sqlGeneratorArchive.Data.Options.Limit.ToString();
+
+                BuildSql();
+            }
+            else
+            {
+                MessageBox.Show("Database unreachable.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                editToolStripMenuItem.Enabled = true;
+            }
+        }
+
         /// <summary>
         /// Keep selection in file
         /// </summary>
-        private void UpdateSgfArchiveContent()
+        private void UpdateSqlGeneratorArchiveContent()
         {
             _sqlGeneratorArchive.Data.Tables.Clear();
             foreach (DataGridViewRow row in tablesGridView.Rows)
@@ -1042,7 +1057,7 @@ namespace SqlGenerator.Forms
 
         private void LimitTextBoxTextChanged(object sender, EventArgs e)
         {
-            UpdateSgfArchiveContent();
+            UpdateSqlGeneratorArchiveContent();
             BuildSql();
         }
 

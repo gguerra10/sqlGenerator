@@ -46,13 +46,13 @@ namespace SqlGenerator.Core.Facade.Impl.Sqlite
                             var sqliteTable = tables.Find(t => t.Equals(table)) as SqliteTable;
                             if (sqliteTable != null)
                             {
-                                sqliteTable.columns.Add(new BaseColumn(columnName));
+                                sqliteTable.columns.Add(new SqliteColumn(columnName));
                             }
                         }
                         else
                         {
                             // New table, must add table and column
-                            table.columns.Add(new BaseColumn(columnName));
+                            table.columns.Add(new SqliteColumn(columnName));
                             tables.Add(table);
                         }
                     }

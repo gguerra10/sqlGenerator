@@ -12,10 +12,7 @@ namespace SqlGenerator.Core.Facade.Impl.MySql
         public MySqlDatabase() : base() { }
         public MySqlDatabase(string connectionString) : base(connectionString) { }
 
-        public DataTable ExecuteSql(string sql)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public bool Load()
         {
@@ -53,8 +50,8 @@ namespace SqlGenerator.Core.Facade.Impl.MySql
                     var dataReader = cmd.ExecuteReader();
                     while (dataReader.Read())
                     {
-                        var tableName = dataReader[0].ToString();
-                        var columnName = dataReader[1].ToString();
+                        var tableName = dataReader[1].ToString();
+                        var columnName = dataReader[3].ToString();
 
                         var table = new MySqlTable(tableName);
                         if (tables.Any(t => t.Equals(table)))
@@ -63,13 +60,13 @@ namespace SqlGenerator.Core.Facade.Impl.MySql
                             var mySqlTable = tables.Find(t => t.Equals(table)) as MySqlTable;
                             if (mySqlTable != null)
                             {
-                                mySqlTable.columns.Add(new BaseColumn(columnName));
+                                mySqlTable.columns.Add(new MySqlColumn(columnName));
                             }
                         }
                         else
                         {
                             // New table, must add table and column
-                            table.columns.Add(new BaseColumn(columnName));
+                            table.columns.Add(new MySqlColumn(columnName));
                             tables.Add(table);
                         }
                     }
@@ -83,6 +80,20 @@ namespace SqlGenerator.Core.Facade.Impl.MySql
                 Debug.WriteLine("Loading database exception: " + ex.Message);
             }
             return result;
+        }
+
+        public DataTable ExecuteSql(string sql)
+        {
+            var dataTable = new DataTable();
+            // Execute query against mysql database
+            var connection = new MySqlConnection(ConnectionString);
+            connection.Open();
+            using (var cmd = new MySqlCommand(sql, connection))
+            {
+                dataTable.Load(cmd.ExecuteReader());
+            }
+            connection.Close();
+            return dataTable;
         }
     }
 }
