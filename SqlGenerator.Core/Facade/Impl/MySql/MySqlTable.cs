@@ -15,7 +15,7 @@ namespace SqlGenerator.Core.Facade.Impl.MySql
         }
         public override string ToString()
         {
-            return $"[{Name}]";
+            return $"{Name}";
         }
 
         public override bool Equals(object obj)

@@ -85,12 +85,18 @@ namespace SqlGenerator.Forms
             {
                 Database = new DatabaseFactory().GetDatabase((DatabaseType)databaseTypeCmb.SelectedItem);
                 Database.ConnectionString = connectionStringTxt.Text;
-                Database.Load();
-                openBtn.Enabled = true;
+                if (Database.Load())
+                {
+                    openBtn.Enabled = true;
+                }
+                else
+                {
+                    throw new Exception("Database could not be loaded.");
+                }
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
