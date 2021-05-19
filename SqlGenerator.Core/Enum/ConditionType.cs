@@ -14,5 +14,7 @@ namespace SqlGenerator.Core.Enum
         Between,            //'BEETWEEN'
         NotBetween,         //'NOT BEETWEEN'
         ClauseIn,           //'IN (x,y,z)'
+        Like,               //'LIKE  %x%'
+        NotLike,            //'NOT LIKE %x%'
     }
 }

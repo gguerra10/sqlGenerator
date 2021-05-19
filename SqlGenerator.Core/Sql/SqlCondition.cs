@@ -55,6 +55,12 @@ namespace SqlGenerator.Core.Sql
                     case ConditionType.ClauseIn:
                         result += " IN ( " + Value + ")";
                         break;
+                    case ConditionType.Like:
+                        result += " LIKE '%" + Value + "%'";
+                        break;
+                    case ConditionType.NotLike:
+                        result += " NOT LIKE '%" + Value + "%'";
+                        break;
                     default:
                         break;
                 }
