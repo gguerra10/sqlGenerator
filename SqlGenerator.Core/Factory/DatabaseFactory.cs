@@ -9,25 +9,30 @@ namespace SqlGenerator.Core.Factory
     public class DatabaseFactory
     {
 
-        public IDatabase GetDatabase(DatabaseType databaseType)
+        /// <summary>
+        /// Get a new database instance according database type
+        /// </summary>
+        /// <param name="databaseType">Database type</param>
+        /// <param name="connectionString">Connection string</param>
+        /// <returns>IDatabase object</returns>
+        public IDatabase GetDatabase(DatabaseType databaseType, string connectionString)
         {
             IDatabase database = null;
 
             switch(databaseType)
             {
                 case DatabaseType.SQLite:
-                    database = new SqliteDatabase();
+                    database = new SqliteDatabase(connectionString);
                     break;
                 case DatabaseType.SQLServer:
-                    database = new SqlServerDatabase();
+                    database = new SqlServerDatabase(connectionString);
                     break;
                 case DatabaseType.MySQL:
-                    database = new MySqlDatabase();
+                    database = new MySqlDatabase(connectionString);
                     break;
                 default:
                     break;
             }
-
             return database;
         }
     }

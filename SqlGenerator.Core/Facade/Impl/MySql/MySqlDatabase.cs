@@ -9,11 +9,22 @@ namespace SqlGenerator.Core.Facade.Impl.MySql
 {
     public class MySqlDatabase : BaseDatabase, IDatabase
     {
+        /// <summary>
+        /// CTOR
+        /// </summary>
         public MySqlDatabase() : base() { }
+
+        /// <summary>
+        /// CTOR
+        /// </summary>
+        /// <param name="connectionString">Connection string</param>
         public MySqlDatabase(string connectionString) : base(connectionString) { }
 
 
-
+        /// <summary>
+        /// Execute inner sql in order to populate tables list with their columns.
+        /// </summary>
+        /// <returns>True if success</returns>
         public bool Load()
         {
             var result = false;

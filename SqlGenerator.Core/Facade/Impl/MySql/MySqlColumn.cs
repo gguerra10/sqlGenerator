@@ -1,7 +1,5 @@
 ﻿using SqlGenerator.Core.Facade.Base;
-using System;
-using System.Collections.Generic;
-using System.Text;
+
 
 namespace SqlGenerator.Core.Facade.Impl.MySql
 {

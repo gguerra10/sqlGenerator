@@ -9,14 +9,22 @@ namespace SqlGenerator.Core.Facade.Impl.SqlServer
 {
     public class SqlServerDatabase : BaseDatabase, IDatabase
     {
+        /// <summary>
+        /// CTOR
+        /// </summary>
         public SqlServerDatabase() : base() { }
+
+        /// <summary>
+        /// CTOR
+        /// </summary>
+        /// <param name="connectionString">Connection string</param>
         public SqlServerDatabase(string connectionString) : base(connectionString) { }
 
 
         /// <summary>
-        /// Load scheme from SqlServer database
+        /// Execute inner sql in order to populate tables list with their columns.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if success</returns>
         public bool Load()
         {
             var result = false;
@@ -82,6 +90,11 @@ namespace SqlGenerator.Core.Facade.Impl.SqlServer
             return result;
         }
 
+        /// <summary>
+        /// Execute query against SqlServer database
+        /// </summary>
+        /// <param name="sql"></param>
+        /// <returns></returns>
         public DataTable ExecuteSql(string sql)
         {
             var dataTable = new DataTable();

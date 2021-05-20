@@ -83,8 +83,9 @@ namespace SqlGenerator.Forms
         {
             try
             {
-                Database = new DatabaseFactory().GetDatabase((DatabaseType)databaseTypeCmb.SelectedItem);
-                Database.ConnectionString = connectionStringTxt.Text;
+                Database = new DatabaseFactory().GetDatabase(
+                    (DatabaseType)databaseTypeCmb.SelectedItem, 
+                    connectionStringTxt.Text);
                 if (Database.Load())
                 {
                     openBtn.Enabled = true;

@@ -9,13 +9,21 @@ namespace SqlGenerator.Core.Facade.Impl.Sqlite
 {
     public class SqliteDatabase : BaseDatabase, IDatabase
     {
+        /// <summary>
+        /// CTOR
+        /// </summary>
         public SqliteDatabase() : base() { }
+
+        /// <summary>
+        /// CTOR
+        /// </summary>
+        /// <param name="connectionString">Connection string</param>
         public SqliteDatabase(string connectionString) : base(connectionString) { }
 
         /// <summary>
-        /// Load scheme from SQLite database
+        /// Execute inner sql in order to populate tables list with their columns.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if success</returns>
         public bool Load()
         {
             var result = false;
