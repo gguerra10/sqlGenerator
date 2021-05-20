@@ -4,7 +4,7 @@ namespace SqlGenerator.Core.Facade.Base
 {
     public class BaseDatabase
     {
-        public string ConnectionString { get; set; }
+        public string ConnectionString { get; internal set; }
 
         public IEnumerable<ITable> Tables => tables;
 

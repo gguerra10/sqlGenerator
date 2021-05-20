@@ -135,8 +135,9 @@ namespace SqlGenerator.Forms
                     _sqlGeneratorArchive = new SqlGeneratorArchive();
                     _sqlGeneratorArchive.Load(openFileDialog.FileName);
 
-                    _database = new DatabaseFactory().GetDatabase(_sqlGeneratorArchive.Data.DatabaseType);
-                    _database.ConnectionString = _sqlGeneratorArchive.Data.ConnectionString;
+                    _database = new DatabaseFactory().GetDatabase(
+                        _sqlGeneratorArchive.Data.DatabaseType,
+                        _sqlGeneratorArchive.Data.ConnectionString);
 
                     sqlGenerator.SetDatabaseType(_sqlGeneratorArchive.Data.DatabaseType);
 
