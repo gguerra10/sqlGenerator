@@ -53,13 +53,14 @@ namespace SqlGenerator.Forms
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.filtersCheckBox = new System.Windows.Forms.CheckBox();
             this.timestampCheckBox = new System.Windows.Forms.CheckBox();
             this.titleTextBox = new System.Windows.Forms.TextBox();
             this.titleLabel = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.saveButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.paginationCheckBox = new System.Windows.Forms.CheckBox();
             this.mainTableLayout.SuspendLayout();
             this.panel1.SuspendLayout();
             this.colorGroupBox.SuspendLayout();
@@ -77,6 +78,7 @@ namespace SqlGenerator.Forms
             this.tableLayoutPanel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel4.SuspendLayout();
+            this.panel5.SuspendLayout();
             this.SuspendLayout();
             // 
             // mainTableLayout
@@ -349,12 +351,12 @@ namespace SqlGenerator.Forms
             // tableLayoutPanel1
             // 
             this.tableLayoutPanel1.ColumnCount = 3;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 45.45454F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 36.36364F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 18.18182F));
             this.tableLayoutPanel1.Controls.Add(this.panel3, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel4, 2, 0);
+            this.tableLayoutPanel1.Controls.Add(this.panel5, 1, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(123, 3);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -365,36 +367,20 @@ namespace SqlGenerator.Forms
             // 
             // panel3
             // 
-            this.panel3.Controls.Add(this.filtersCheckBox);
-            this.panel3.Controls.Add(this.timestampCheckBox);
             this.panel3.Controls.Add(this.titleTextBox);
             this.panel3.Controls.Add(this.titleLabel);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(3, 3);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(543, 28);
+            this.panel3.Size = new System.Drawing.Size(493, 28);
             this.panel3.TabIndex = 1;
-            // 
-            // filtersCheckBox
-            // 
-            this.filtersCheckBox.AutoSize = true;
-            this.filtersCheckBox.Checked = true;
-            this.filtersCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.filtersCheckBox.Location = new System.Drawing.Point(382, 7);
-            this.filtersCheckBox.Name = "filtersCheckBox";
-            this.filtersCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.filtersCheckBox.Size = new System.Drawing.Size(57, 19);
-            this.filtersCheckBox.TabIndex = 3;
-            this.filtersCheckBox.Text = "Filters";
-            this.filtersCheckBox.UseVisualStyleBackColor = true;
-            this.filtersCheckBox.CheckedChanged += new System.EventHandler(this.FiltersCheckBoxCheckedChanged);
             // 
             // timestampCheckBox
             // 
             this.timestampCheckBox.AutoSize = true;
             this.timestampCheckBox.Checked = true;
             this.timestampCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.timestampCheckBox.Location = new System.Drawing.Point(458, 7);
+            this.timestampCheckBox.Location = new System.Drawing.Point(98, 7);
             this.timestampCheckBox.Name = "timestampCheckBox";
             this.timestampCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.timestampCheckBox.Size = new System.Drawing.Size(85, 19);
@@ -425,14 +411,14 @@ namespace SqlGenerator.Forms
             this.panel4.Controls.Add(this.saveButton);
             this.panel4.Controls.Add(this.exportButton);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(826, 3);
+            this.panel4.Location = new System.Drawing.Point(901, 3);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(269, 28);
+            this.panel4.Size = new System.Drawing.Size(194, 28);
             this.panel4.TabIndex = 2;
             // 
             // saveButton
             // 
-            this.saveButton.Location = new System.Drawing.Point(107, 3);
+            this.saveButton.Location = new System.Drawing.Point(15, 3);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
             this.saveButton.TabIndex = 1;
@@ -443,13 +429,37 @@ namespace SqlGenerator.Forms
             // exportButton
             // 
             this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.exportButton.Location = new System.Drawing.Point(188, 3);
+            this.exportButton.Location = new System.Drawing.Point(113, 3);
             this.exportButton.Name = "exportButton";
             this.exportButton.Size = new System.Drawing.Size(75, 23);
             this.exportButton.TabIndex = 0;
             this.exportButton.Text = "Export";
             this.exportButton.UseVisualStyleBackColor = true;
             this.exportButton.Click += new System.EventHandler(this.ExportButton_Click);
+            // 
+            // panel5
+            // 
+            this.panel5.Controls.Add(this.timestampCheckBox);
+            this.panel5.Controls.Add(this.paginationCheckBox);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel5.Location = new System.Drawing.Point(502, 3);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(393, 28);
+            this.panel5.TabIndex = 3;
+            // 
+            // paginationCheckBox
+            // 
+            this.paginationCheckBox.AutoSize = true;
+            this.paginationCheckBox.Checked = true;
+            this.paginationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.paginationCheckBox.Location = new System.Drawing.Point(0, 7);
+            this.paginationCheckBox.Name = "paginationCheckBox";
+            this.paginationCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.paginationCheckBox.Size = new System.Drawing.Size(83, 19);
+            this.paginationCheckBox.TabIndex = 3;
+            this.paginationCheckBox.Text = "Pagination";
+            this.paginationCheckBox.UseVisualStyleBackColor = true;
+            this.paginationCheckBox.CheckedChanged += new System.EventHandler(this.PaginationCheckBoxCheckedChanged);
             // 
             // PdfDesignerForm
             // 
@@ -481,6 +491,8 @@ namespace SqlGenerator.Forms
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.panel4.ResumeLayout(false);
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -517,6 +529,7 @@ namespace SqlGenerator.Forms
         private System.Windows.Forms.GroupBox colorGroupBox;
         private System.Windows.Forms.Button backgroundColorButton;
         private System.Windows.Forms.Button foregroundColorButton;
-        private System.Windows.Forms.CheckBox filtersCheckBox;
+        private System.Windows.Forms.Panel panel5;
+        private System.Windows.Forms.CheckBox paginationCheckBox;
     }
 }

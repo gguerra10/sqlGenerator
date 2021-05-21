@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using SqlGenerator.Archive;
-using SqlGenerator.Extension;
+using SqlGenerator.Extensions;
 using SqlGenerator.Row;
 using SqlGenerator.Core.Facade;
 using SqlGenerator.Core.Factory;
@@ -248,6 +248,7 @@ namespace SqlGenerator.Forms
 
         private void PdfToolStripMenuItem_Click(object sender, EventArgs e)
         {
+
             var pdfDesigner = new PdfDesignerForm(resultGridView.DataSource as DataTable, _sqlGeneratorArchive)
             {
                 StartPosition = FormStartPosition.CenterParent,
@@ -754,24 +755,7 @@ namespace SqlGenerator.Forms
 
                     UpdateSqlGeneratorArchiveContent();
                     BuildSql();
-                }/*
-                else if (e.ColumnIndex.Equals(ColumnsGridViewColumns.Selected.GetPosition()) &&
-                    senderGrid.Columns[e.ColumnIndex] is DataGridViewCheckBoxColumn && e.RowIndex >= 0)
-                {
-                    // Handle selected checkbox button clicked, selection
-                    var dataGridViewCheckBoxCell = (DataGridViewCheckBoxCell)senderGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
-                    if (Convert.ToBoolean(dataGridViewCheckBoxCell.Value))
-                    {
-                        Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " selected");
-                    }
-                    else
-                    {
-                        Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " unselected");
-                    }
-
-                    UpdateQueryGeneratorFile();
-                    BuildSql();
-                }*/
+                }
             }
         }
 
@@ -991,7 +975,6 @@ namespace SqlGenerator.Forms
             try
             {
 
-
                 // Generate Sql
                 var sql = sqlGenerator.Select(
                     sqlSelects,
@@ -1006,8 +989,11 @@ namespace SqlGenerator.Forms
                 sqlTextBox.Text = sql;
                 if (automaticCheckBox.Checked)
                 {
-                    // Check aggregation
-                    sqlGenerator.SelectAggregationCheck(sqlSelects, sqlGroups);
+                    if (agreggationCheckBox.Checked)
+                    {
+                        // Check aggregation
+                        sqlGenerator.SelectAggregationCheck(sqlSelects, sqlGroups);
+                    }
 
                     // Execute Sql
                     ExecuteSql(sql);
@@ -1080,7 +1066,11 @@ namespace SqlGenerator.Forms
             {
                 automaticCheckBox.Checked = false;
             }
+        }
 
+        private void AgreggationCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            // Nothing to do
         }
 
         private void ExecuteSqlButton_Click(object sender, EventArgs e)
@@ -1089,11 +1079,20 @@ namespace SqlGenerator.Forms
             ExecuteSql(sqlTextBox.Text);
         }
 
+        private bool _allSelected;
+        private void SelectAllButton_Click(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in columnsGridView.Rows)
+            {
+                var checkBoxCell = ((DataGridViewCheckBoxCell)row.Cells[ColumnsGridViewColumns.Selected.GetPosition()]);
+                checkBoxCell.Value = _allSelected;
+            }
+            _allSelected = !_allSelected;
+        }
+
         private void SelectorForm_Shown(object sender, EventArgs e)
         {
             // Nothing to do.
         }
-
-
     }
 }

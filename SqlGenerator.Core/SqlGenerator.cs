@@ -23,7 +23,6 @@ namespace SqlGenerator
             IEnumerable<SqlOrder> orders,
             int limit = 0)
         {
-            //SelectAggregationCheck(selects, groups);
 
             var sql = $"SELECT" + "\r\n";
 
@@ -126,6 +125,12 @@ namespace SqlGenerator
             return sql;
         }
 
+
+        /// <summary>
+        /// Check aggregation, if there is any group or aggregate method then the rest of fiels must be appear in group clause or be used in aggregate method
+        /// </summary>
+        /// <param name="selects"></param>
+        /// <param name="groups"></param>
         public void SelectAggregationCheck(
             IEnumerable<SqlSelect> selects,
             IEnumerable<SqlGroup> groups)
@@ -141,7 +146,7 @@ namespace SqlGenerator
                     if (select.AggregationType == AggregationType.None && 
                         !groups.Any(g => g.Field.Equals(select.Field)))
                     {
-                        throw new System.Exception("Selected column '" + select.Field + "' must appear in the group by clause or be used in an aggregate function");
+                        throw new System.Exception("Selected column '" + select.Field + "' must appear in the group by clause or be used in an aggregate method");
                     }
                 }
             }

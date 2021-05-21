@@ -1,9 +1,15 @@
 ﻿using System.Windows.Forms;
 
-namespace SqlGenerator.Extension
+namespace SqlGenerator.Extensions
 {
     public static class TreeViewExtensions
     {
+        /// <summary>
+        /// Node recursive search based on name
+        /// </summary>
+        /// <param name="treeView"></param>
+        /// <param name="nodeName"></param>
+        /// <returns></returns>
         public static TreeNode SearchRecursive(this TreeView treeView, string nodeName)
         {
             TreeNode result = null;

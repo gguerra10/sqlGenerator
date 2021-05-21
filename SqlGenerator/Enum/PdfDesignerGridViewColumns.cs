@@ -6,11 +6,15 @@ namespace SqlGenerator.Enum
     {
         [DataGridColumn("Data", 0, Description = "Data")]
         Data,
-        [DataGridColumn("Show", 1, Description = "Show")]
+        [DataGridColumn("Legend", 1, Description = "Legend")]
+        Legend,
+        [DataGridColumn("Show", 2, Description = "Show")]
         Show,
-        [DataGridColumn("Width", 2, Description = "Width")]
+        [DataGridColumn("Total", 3, Description = "Total")]
+        Total,
+        [DataGridColumn("Width", 4, Description = "Width")]
         Width,
-        [DataGridColumn("Alignment", 3, Description = "Alignment")]
+        [DataGridColumn("Alignment", 5, Description = "Alignment")]
         Alignment,
     }
 }
