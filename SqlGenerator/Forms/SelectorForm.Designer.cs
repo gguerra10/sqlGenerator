@@ -59,11 +59,13 @@ namespace SqlGenerator.Forms
             this.limitLabel = new System.Windows.Forms.Label();
             this.limitTextBox = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.automaticCheckBox = new System.Windows.Forms.CheckBox();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.sqlEditableCheckBox = new System.Windows.Forms.CheckBox();
+            this.selectAllButton = new System.Windows.Forms.Button();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.sqlEditableCheckBox = new System.Windows.Forms.CheckBox();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.agreggationCheckBox = new System.Windows.Forms.CheckBox();
+            this.automaticCheckBox = new System.Windows.Forms.CheckBox();
             this.executeSqlButton = new System.Windows.Forms.Button();
             this.selectableSplitContainer = new System.Windows.Forms.SplitContainer();
             this.tablesGroupBox = new System.Windows.Forms.GroupBox();
@@ -92,8 +94,8 @@ namespace SqlGenerator.Forms
             this.optionsGroupBox.SuspendLayout();
             this.optionsTableLayoutPanel.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.selectableSplitContainer)).BeginInit();
             this.selectableSplitContainer.Panel1.SuspendLayout();
@@ -379,40 +381,44 @@ namespace SqlGenerator.Forms
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.automaticCheckBox);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(211, 3);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(150, 26);
             this.panel2.TabIndex = 3;
             // 
-            // automaticCheckBox
-            // 
-            this.automaticCheckBox.AutoSize = true;
-            this.automaticCheckBox.Checked = true;
-            this.automaticCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.automaticCheckBox.Location = new System.Drawing.Point(6, 5);
-            this.automaticCheckBox.Name = "automaticCheckBox";
-            this.automaticCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.automaticCheckBox.Size = new System.Drawing.Size(82, 19);
-            this.automaticCheckBox.TabIndex = 1;
-            this.automaticCheckBox.Text = "Automatic";
-            this.automaticCheckBox.UseVisualStyleBackColor = true;
-            this.automaticCheckBox.CheckedChanged += new System.EventHandler(this.AutomaticCheckBoxCheckedChanged);
-            // 
             // panel3
             // 
-            this.panel3.Controls.Add(this.sqlEditableCheckBox);
+            this.panel3.Controls.Add(this.selectAllButton);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(367, 3);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(150, 26);
             this.panel3.TabIndex = 4;
             // 
+            // selectAllButton
+            // 
+            this.selectAllButton.Location = new System.Drawing.Point(75, 3);
+            this.selectAllButton.Name = "selectAllButton";
+            this.selectAllButton.Size = new System.Drawing.Size(75, 23);
+            this.selectAllButton.TabIndex = 0;
+            this.selectAllButton.Text = "Select All";
+            this.selectAllButton.UseVisualStyleBackColor = true;
+            this.selectAllButton.Click += new System.EventHandler(this.SelectAllButton_Click);
+            // 
+            // panel4
+            // 
+            this.panel4.Controls.Add(this.sqlEditableCheckBox);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel4.Location = new System.Drawing.Point(523, 3);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(150, 26);
+            this.panel4.TabIndex = 5;
+            // 
             // sqlEditableCheckBox
             // 
             this.sqlEditableCheckBox.AutoSize = true;
-            this.sqlEditableCheckBox.Location = new System.Drawing.Point(0, 5);
+            this.sqlEditableCheckBox.Location = new System.Drawing.Point(44, 5);
             this.sqlEditableCheckBox.Name = "sqlEditableCheckBox";
             this.sqlEditableCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.sqlEditableCheckBox.Size = new System.Drawing.Size(92, 19);
@@ -421,22 +427,44 @@ namespace SqlGenerator.Forms
             this.sqlEditableCheckBox.UseVisualStyleBackColor = true;
             this.sqlEditableCheckBox.CheckedChanged += new System.EventHandler(this.SqlEditableCheckBoxCheckedChanged);
             // 
-            // panel4
-            // 
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(523, 3);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(150, 26);
-            this.panel4.TabIndex = 5;
-            // 
             // panel5
             // 
+            this.panel5.Controls.Add(this.agreggationCheckBox);
+            this.panel5.Controls.Add(this.automaticCheckBox);
             this.panel5.Controls.Add(this.executeSqlButton);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel5.Location = new System.Drawing.Point(679, 3);
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(358, 26);
             this.panel5.TabIndex = 6;
+            // 
+            // agreggationCheckBox
+            // 
+            this.agreggationCheckBox.AutoSize = true;
+            this.agreggationCheckBox.Checked = true;
+            this.agreggationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.agreggationCheckBox.Location = new System.Drawing.Point(113, 5);
+            this.agreggationCheckBox.Name = "agreggationCheckBox";
+            this.agreggationCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.agreggationCheckBox.Size = new System.Drawing.Size(128, 19);
+            this.agreggationCheckBox.TabIndex = 2;
+            this.agreggationCheckBox.Text = "Aggregation Check";
+            this.agreggationCheckBox.UseVisualStyleBackColor = true;
+            this.agreggationCheckBox.CheckedChanged += new System.EventHandler(this.AgreggationCheckBox_CheckedChanged);
+            // 
+            // automaticCheckBox
+            // 
+            this.automaticCheckBox.AutoSize = true;
+            this.automaticCheckBox.Checked = true;
+            this.automaticCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.automaticCheckBox.Location = new System.Drawing.Point(13, 5);
+            this.automaticCheckBox.Name = "automaticCheckBox";
+            this.automaticCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.automaticCheckBox.Size = new System.Drawing.Size(82, 19);
+            this.automaticCheckBox.TabIndex = 1;
+            this.automaticCheckBox.Text = "Automatic";
+            this.automaticCheckBox.UseVisualStyleBackColor = true;
+            this.automaticCheckBox.CheckedChanged += new System.EventHandler(this.AutomaticCheckBoxCheckedChanged);
             // 
             // executeSqlButton
             // 
@@ -651,11 +679,11 @@ namespace SqlGenerator.Forms
             this.optionsTableLayoutPanel.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
-            this.panel3.PerformLayout();
+            this.panel4.ResumeLayout(false);
+            this.panel4.PerformLayout();
             this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
             this.selectableSplitContainer.Panel1.ResumeLayout(false);
             this.selectableSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.selectableSplitContainer)).EndInit();
@@ -728,6 +756,8 @@ namespace SqlGenerator.Forms
         private Button executeSqlButton;
         private ToolStripMenuItem pdfToolStripMenuItem;
         private ToolStripMenuItem csvToolStripMenuItem;
+        private CheckBox agreggationCheckBox;
+        private Button selectAllButton;
     }
 }
 

@@ -4,6 +4,9 @@ using SqlGenerator.Core.Enum;
 
 namespace SqlGenerator.Archive.Content
 {
+    /// <summary>
+    /// Content related to columns data grid view
+    /// </summary>
     public class ArchiveColumn
     {
         public string TableName { get; set; }

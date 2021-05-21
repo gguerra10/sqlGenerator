@@ -3,6 +3,9 @@
 
 namespace SqlGenerator.Archive.Content
 {
+    /// <summary>
+    /// Content related to tables data grid view
+    /// </summary>
     public class ArchiveTable
     {
 

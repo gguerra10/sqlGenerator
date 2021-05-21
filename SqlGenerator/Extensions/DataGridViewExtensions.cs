@@ -1,9 +1,13 @@
 ﻿using System.Windows.Forms;
 
-namespace SqlGenerator.Extension
+namespace SqlGenerator.Extensions
 {
     public static class DataGridViewExtensions
     {
+        /// <summary>
+        /// Set automatic size in displayed columns
+        /// </summary>
+        /// <param name="dataGridView"></param>
         public static void AutoSizeColumns(this DataGridView dataGridView)
         {
             foreach(DataGridViewColumn column in dataGridView.Columns)
@@ -16,7 +20,6 @@ namespace SqlGenerator.Extension
                 column.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                 column.Width = columnWidth;
             }
-
         }
     }
 }

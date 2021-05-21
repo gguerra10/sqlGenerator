@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using SqlGenerator.Extension;
+using SqlGenerator.Extensions;
 using SqlGenerator.Core.Facade;
 using SqlGenerator.Core.Sql;
 using SqlGenerator.Core.Enum;

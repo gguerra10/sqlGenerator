@@ -3,7 +3,7 @@ using SqlGenerator.Export.Facade;
 using SqlGenerator.Export.Facade.Impl.Pdf;
 using SqlGenerator.Export.Pdf;
 using SqlGenerator.Export.Pdf.Enum;
-using SqlGenerator.Extension;
+using SqlGenerator.Extensions;
 using SqlGenerator.Archive;
 using System;
 using System.Collections.Generic;
@@ -27,6 +27,7 @@ namespace SqlGenerator.Forms
 
         private IExporter _pdfExporter;
         private DataTable DataTable { get; set; }
+        
 
         public PdfDesignerForm(DataTable dataTable, SqlGeneratorArchive queryGeneratorFile)
         {
@@ -75,8 +76,23 @@ namespace SqlGenerator.Forms
                     }
                 }
                 PdfDesign.DataCollection = designDataCollection;
-                
+
+                // Add new columns selected
+                foreach (DataColumn column in DataTable.Columns)
+                {
+                    if(!PdfDesign.DataCollection.Any(d => d.Name == column.ColumnName))
+                    {
+                        PdfDesign.DataCollection.Add(new PdfDesignData()
+                        {
+                            Name = column.ColumnName,
+                            Show = true,
+                            Width = 100,
+                        });
+                    }
+                }
             }
+
+
 
             // Add default FontSize in  PdfDesign
             if (PdfDesign.FontSize == 0)
@@ -85,8 +101,8 @@ namespace SqlGenerator.Forms
             }
 
             titleTextBox.Text = PdfDesign.Title;
-            filtersCheckBox.Checked = PdfDesign.Filters;
-            timestampCheckBox.Checked = PdfDesign.Timestamp;
+            timestampCheckBox.Checked = PdfDesign.ShowTimestamp;
+            paginationCheckBox.Checked = PdfDesign.ShowTimestamp;
             horizontalRadioButton.Checked = PdfDesign.Orientation.Equals(PdfOrientation.Landscape);
             fontsizeComboBox.SelectedItem = PdfDesign.FontSize;
 
@@ -113,7 +129,16 @@ namespace SqlGenerator.Forms
             };
             designerDataGridView.Columns.Add(dataName);
 
-            // Grid column (check type): data hidden
+            // Grid column (text type): data legend
+            DataGridViewTextBoxColumn dataLegend = new DataGridViewTextBoxColumn()
+            {
+                Name = PdfDesignerGridViewColumns.Legend.GetName(),
+                HeaderText = PdfDesignerGridViewColumns.Legend.GetDescription(),
+                ReadOnly = false,
+            };
+            designerDataGridView.Columns.Add(dataLegend);
+
+            // Grid column (check type): data show
             DataGridViewCheckBoxColumn dataShown = new DataGridViewCheckBoxColumn()
             {
                 Name = PdfDesignerGridViewColumns.Show.GetName(),
@@ -121,6 +146,15 @@ namespace SqlGenerator.Forms
                 ReadOnly = false,
             };
             designerDataGridView.Columns.Add(dataShown);
+
+            // Grid column (check type): add total
+            DataGridViewCheckBoxColumn dataTotal = new DataGridViewCheckBoxColumn()
+            {
+                Name = PdfDesignerGridViewColumns.Total.GetName(),
+                HeaderText = PdfDesignerGridViewColumns.Total.GetDescription(),
+                ReadOnly = false,
+            };
+            designerDataGridView.Columns.Add(dataTotal);
 
             // Grid column (text type): column width
             DataGridViewTextBoxColumn dataWidth = new DataGridViewTextBoxColumn()
@@ -134,15 +168,14 @@ namespace SqlGenerator.Forms
             // Grid column (combo type): alignment
             DataGridViewComboBoxColumn dataAlignment = new DataGridViewComboBoxColumn()
             {
-                Name = ColumnsGridViewColumns.Group.GetName(),
-                HeaderText = ColumnsGridViewColumns.Group.GetDescription(),
+                Name = PdfDesignerGridViewColumns.Alignment.GetName(),
+                HeaderText = PdfDesignerGridViewColumns.Alignment.GetDescription(),
                 ValueType = typeof(PdfAlignment),
                 DisplayMember = "Display",
                 ValueMember = "Value",
                 DataSource = System.Enum.GetValues(typeof(PdfAlignment)).OfType<PdfAlignment>().ToList().Select(value => new { Value = value, Display = value.ToString() }).ToList(),
             };
             designerDataGridView.Columns.Add(dataAlignment);
-
         }
 
         private void DesignerDataGridViewAddRow(PdfDesignData designData)
@@ -152,7 +185,9 @@ namespace SqlGenerator.Forms
             designGridViewRow.CreateCells(designerDataGridView);
 
             designGridViewRow.Cells[PdfDesignerGridViewColumns.Data.GetPosition()].Value = designData.Name;
+            designGridViewRow.Cells[PdfDesignerGridViewColumns.Legend.GetPosition()].Value = designData.Legend;
             designGridViewRow.Cells[PdfDesignerGridViewColumns.Show.GetPosition()].Value = designData.Show;
+            designGridViewRow.Cells[PdfDesignerGridViewColumns.Total.GetPosition()].Value = designData.Total;
             designGridViewRow.Cells[PdfDesignerGridViewColumns.Width.GetPosition()].Value = designData.Width;
             designGridViewRow.Cells[PdfDesignerGridViewColumns.Alignment.GetPosition()].Value = designData.Alignment;
 
@@ -228,15 +263,20 @@ namespace SqlGenerator.Forms
             foreach (DataGridViewRow designData in designerDataGridView.Rows)
             {
                 var name = designData.Cells[PdfDesignerGridViewColumns.Data.GetPosition()].Value.ToString();
+                var legend = designData.Cells[PdfDesignerGridViewColumns.Legend.GetPosition()].Value.ToString();
                 var checkBoxCell = designData.Cells[PdfDesignerGridViewColumns.Show.GetPosition()] as DataGridViewCheckBoxCell;
                 var show = Convert.ToBoolean(checkBoxCell.EditingCellValueChanged ? checkBoxCell.EditingCellFormattedValue : checkBoxCell.Value);
+                checkBoxCell = designData.Cells[PdfDesignerGridViewColumns.Total.GetPosition()] as DataGridViewCheckBoxCell;
+                var total = Convert.ToBoolean(checkBoxCell.EditingCellValueChanged ? checkBoxCell.EditingCellFormattedValue : checkBoxCell.Value);
                 var width = Convert.ToInt32(designData.Cells[PdfDesignerGridViewColumns.Width.GetPosition()].Value);
                 var alignment = (PdfAlignment)System.Enum.Parse(typeof(PdfAlignment), ((DataGridViewComboBoxCell)designData.Cells[PdfDesignerGridViewColumns.Alignment.GetPosition()]).EditedFormattedValue.ToString());
 
                 var pdfDesignData = new PdfDesignData()
                 {
                     Name = name,
+                    Legend = legend,
                     Show = show,
+                    Total = total,
                     Width = width,
                     Alignment = alignment,
                 };
@@ -395,7 +435,6 @@ namespace SqlGenerator.Forms
                 }
             }
 
-
             _pdfExporter = new PdfExporter(PdfDesign);
             var saveFileDialog = new SaveFileDialog()
             {
@@ -407,16 +446,23 @@ namespace SqlGenerator.Forms
             {
 
                 // Export to Pdf
-                if (_pdfExporter.Export(saveFileDialog.FileName, pdfDataTable))
+                try
                 {
-                    new Process
+                    if (_pdfExporter.Export(saveFileDialog.FileName, pdfDataTable))
                     {
-                        // Open file using shell
-                        StartInfo = new ProcessStartInfo(saveFileDialog.FileName)
+                        new Process
                         {
-                            UseShellExecute = true
-                        }
-                    }.Start();
+                            // Open file using shell
+                            StartInfo = new ProcessStartInfo(saveFileDialog.FileName)
+                            {
+                                UseShellExecute = true
+                            }
+                        }.Start();
+                    }
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -435,14 +481,15 @@ namespace SqlGenerator.Forms
 
         }
 
-        private void FiltersCheckBoxCheckedChanged(object sender, EventArgs e)
-        {
-            PdfDesign.Filters = filtersCheckBox.Checked;
-        }
 
         private void TimestampCheckBoxCheckedChanged(object sender, EventArgs e)
         {
-            PdfDesign.Timestamp = timestampCheckBox.Checked;
+            PdfDesign.ShowTimestamp = timestampCheckBox.Checked;
+        }
+
+        private void PaginationCheckBoxCheckedChanged(object sender, EventArgs e)
+        {
+            PdfDesign.ShowPages = paginationCheckBox.Checked;
         }
 
         private void FontsizeComboBoxSelectedIndexChanged(object sender, EventArgs e)
@@ -494,6 +541,5 @@ namespace SqlGenerator.Forms
             PdfDesign.HeaderForegroundColor = colorDialog.Color;
             UpdatePreview();
         }
-
     }
 }

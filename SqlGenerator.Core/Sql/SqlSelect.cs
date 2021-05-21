@@ -35,6 +35,9 @@ namespace SqlGenerator.Core.Sql
                 case AggregationType.Max:
                     sql += "MAX(" + Field + ")";
                     break;
+                case AggregationType.Average:
+                    sql += "AVG(" + Field + ")";
+                    break;
                 default:
                     sql += Field;
                     break;

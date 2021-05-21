@@ -1,19 +1,17 @@
 ﻿using iText.IO.Font;
 using iText.IO.Font.Constants;
 using iText.Kernel.Colors;
+using iText.Kernel.Events;
 using iText.Kernel.Font;
 using iText.Kernel.Geom;
 using iText.Kernel.Pdf;
 using iText.Layout;
-using iText.Layout.Borders;
 using iText.Layout.Element;
-using iText.Layout.Font;
 using iText.Layout.Properties;
 using SqlGenerator.Export.Pdf;
 using SqlGenerator.Export.Pdf.Enum;
 using System;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -24,6 +22,7 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
         public string Filter => "Portable Document Format (*.pdf)|*.pdf";
 
         private readonly PdfDesign _pdfDesign;
+        private PdfWriter _pdfWriter;
 
         public PdfExporter(PdfDesign pdfDesign)
         {
@@ -34,29 +33,33 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
 
         public bool Export(string filePath, DataTable dataTable, params object[] arguments)
         {
-            var result = false;
-
+            bool result;
             try
             {
-                GeneratePdf(filePath, dataTable);
+                _pdfWriter = new PdfWriter(new FileStream(filePath, FileMode.Create));
+                GeneratePdf(dataTable);
                 result = true;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Exception: " + ex.Message);
+                throw new Exception("Error generating Pdf document", ex);
+            }
+            finally
+            {
+                _pdfWriter.Close();
             }
             return result;
 
         }
 
-        private void GeneratePdf(string filePath, DataTable dataTable)
+        private void GeneratePdf(DataTable dataTable)
         {
-            var pdfWriter = new PdfWriter(new FileStream(filePath, FileMode.Create));
-            var pdfDocument = new PdfDocument(pdfWriter);
-            var document = new Document(pdfDocument, PageSize.A4);
+            var pdfDocument = new PdfDocument(_pdfWriter); 
+
+            var document = new Document(pdfDocument, PageSize.A4, false);
             if (_pdfDesign.Orientation.Equals(PdfOrientation.Landscape))
             {
-                document = new Document(pdfDocument, PageSize.A4.Rotate());
+                document = new Document(pdfDocument, PageSize.A4.Rotate(), false);
             }
 
             // Add title
@@ -65,27 +68,29 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                 .SetFont(_baseFont)
                 .SetFontSize(_pdfDesign.FontSize + 8));
 
-            // Add filters
 
-            if(_pdfDesign.Filters)
+            // Add legend
+            foreach(var designData in _pdfDesign.DataCollection)
             {
-
+                if(!string.IsNullOrEmpty(designData.Legend))
+                {
+                    // Add title
+                    document.Add(new Paragraph(designData.Legend)
+                        .SetTextAlignment(TextAlignment.LEFT)
+                        .SetFont(_baseFont)
+                        .SetFontSize(_pdfDesign.FontSize));
+                }
             }
 
-            // Add timestamp
-            if (_pdfDesign.Timestamp)
-            {
-                document.Add(new Paragraph($"Report generated at { DateTime.Now.ToString("HH:mm:ss dd/MM/yyyy") }")
-                    .SetTextAlignment(TextAlignment.RIGHT)
-                    .SetFont(_baseFont)
-                    .SetFontSize(8));
-            }
-
+            // Add table
             AddDataTable(ref document, dataTable);
+
+
+            AddHeaders(document);
 
             document.Close();
             pdfDocument.Close();
-            pdfWriter.Close();
+            _pdfWriter.Close();
         }
 
 
@@ -153,10 +158,74 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                 }
             }
 
-            // Insert totals
+            // Insert Totals
+            foreach (DataColumn dataColumn in dataTable.Columns)
+            {
+                object totalObject = "";
+                var designData = _pdfDesign.DataCollection.First(d => d.Name.Equals(dataColumn.ColumnName));
+                if (designData.Total)
+                {
+                    try
+                    {
+                        totalObject = dataTable.Compute($"SUM({dataColumn.ColumnName})", string.Empty);
+                    }
+                    catch(Exception)
+                    {
+                        totalObject = "#NaN#";
+                    }
+                }
+                var cell = new Cell().Add(
+                    new Paragraph(totalObject.ToString()))
+                    .SetFontSize(_pdfDesign.FontSize + 2);
+
+                switch (designData.Alignment)
+                {
+                    case PdfAlignment.Centered:
+                        cell.SetTextAlignment(TextAlignment.CENTER);
+                        break;
+                    case PdfAlignment.RightAlignment:
+                        cell.SetTextAlignment(TextAlignment.RIGHT);
+                        break;
+                    case PdfAlignment.LeftAlignment:
+                    default:
+                        cell.SetTextAlignment(TextAlignment.LEFT);
+                        break;
+                }
+
+                table.AddCell(cell);
+            }
 
 
             document.Add(table);
+        }
+
+        private void AddHeaders(Document document)
+        {
+            var totalPages = document.GetPdfDocument().GetNumberOfPages();
+
+            for (int i = 1; i <= totalPages; i++)
+            {
+
+                var pageSize = document.GetPdfDocument().GetPage(i).GetPageSize();
+                
+                if (_pdfDesign.ShowTimestamp)
+                {
+                    // Add timestamp
+                    document.ShowTextAligned(new Paragraph($"Report generated at: { DateTime.Now.ToString("HH:mm:ss dd/MM/yyyy") }"),
+                       pageSize.GetWidth() - 10, pageSize.GetHeight() - 20, i, TextAlignment.RIGHT, VerticalAlignment.BOTTOM, 0)
+                      .SetFont(_baseFont)
+                      .SetFontSize(8);
+                }
+
+                if (_pdfDesign.ShowPages)
+                {
+                    // Add pagination
+                    document.ShowTextAligned(new Paragraph(string.Format("Page {0} of {1}", i, totalPages)),
+                         20, pageSize.GetHeight() - 20, i, TextAlignment.LEFT, VerticalAlignment.BOTTOM, 0)
+                        .SetFont(_baseFont)
+                        .SetFontSize(8);
+                }
+            }
         }
     }
 }

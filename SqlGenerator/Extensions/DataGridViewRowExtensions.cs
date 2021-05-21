@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
-namespace SqlGenerator.Extension
+namespace SqlGenerator.Extensions
+
 {
     public static class DataGridViewRowExtensions
     {
+
+        /// <summary>
+        /// Check if every cell in a row has value
+        /// </summary>
+        /// <param name="dataGridViewRow"></param>
+        /// <returns></returns>
         public static bool AllCellsHaveValue(this DataGridViewRow dataGridViewRow)
         {
             var result = true;

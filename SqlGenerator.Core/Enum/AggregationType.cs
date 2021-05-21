@@ -9,5 +9,6 @@ namespace SqlGenerator.Core.Enum
         Sum,            //SUM()
         Min,            //MIN()
         Max,            //MAX()
+        Average,        //AVG()
     }
 }

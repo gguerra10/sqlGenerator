@@ -8,9 +8,9 @@ namespace SqlGenerator.Export.Pdf
     {
         public string Title { get; set; }
 
-        public bool Filters { get; set; }
+        public bool ShowPages { get; set; }
 
-        public bool Timestamp { get; set; }
+        public bool ShowTimestamp { get; set; }
 
         public int FontSize { get; set; }
 
@@ -21,7 +21,6 @@ namespace SqlGenerator.Export.Pdf
         public PdfOrientation Orientation { get; set; }
 
         public PdfAlignment Alignment { get; set; }
-
 
         public List<PdfDesignData> DataCollection { get; set; }
 

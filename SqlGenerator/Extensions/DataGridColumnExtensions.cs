@@ -1,7 +1,7 @@
 ﻿using SqlGenerator.Attribute;
 using System.Reflection;
 
-namespace SqlGenerator.Extension
+namespace SqlGenerator.Extensions
 {
     public static class DataGridColumnExtensions
     {
