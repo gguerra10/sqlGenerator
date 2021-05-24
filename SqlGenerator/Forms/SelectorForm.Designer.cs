@@ -370,6 +370,8 @@ namespace SqlGenerator.Forms
             // 
             // limitTextBox
             // 
+            this.limitTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.limitTextBox.Location = new System.Drawing.Point(55, 2);
             this.limitTextBox.Name = "limitTextBox";
             this.limitTextBox.Size = new System.Drawing.Size(100, 23);
@@ -398,6 +400,8 @@ namespace SqlGenerator.Forms
             // 
             // selectAllButton
             // 
+            this.selectAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.selectAllButton.Location = new System.Drawing.Point(75, 3);
             this.selectAllButton.Name = "selectAllButton";
             this.selectAllButton.Size = new System.Drawing.Size(75, 23);
@@ -417,6 +421,8 @@ namespace SqlGenerator.Forms
             // 
             // sqlEditableCheckBox
             // 
+            this.sqlEditableCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.sqlEditableCheckBox.AutoSize = true;
             this.sqlEditableCheckBox.Location = new System.Drawing.Point(44, 5);
             this.sqlEditableCheckBox.Name = "sqlEditableCheckBox";
@@ -440,6 +446,8 @@ namespace SqlGenerator.Forms
             // 
             // agreggationCheckBox
             // 
+            this.agreggationCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.agreggationCheckBox.AutoSize = true;
             this.agreggationCheckBox.Checked = true;
             this.agreggationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
@@ -454,6 +462,8 @@ namespace SqlGenerator.Forms
             // 
             // automaticCheckBox
             // 
+            this.automaticCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.automaticCheckBox.AutoSize = true;
             this.automaticCheckBox.Checked = true;
             this.automaticCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
@@ -468,7 +478,8 @@ namespace SqlGenerator.Forms
             // 
             // executeSqlButton
             // 
-            this.executeSqlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.executeSqlButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.executeSqlButton.Location = new System.Drawing.Point(280, 2);
             this.executeSqlButton.Name = "executeSqlButton";
             this.executeSqlButton.Size = new System.Drawing.Size(75, 23);

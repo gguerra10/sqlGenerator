@@ -12,7 +12,7 @@ namespace SqlGenerator.Export.Facade.Impl.Excel
     {
         public string Filter => "Excel DataSheet (*.xls)|*.xls";
 
-        public bool Export(string filePath, DataTable dataTable, params object[] arguments)
+        public bool Export(string filePath, DataTable dataTable)
         {
             var result = false;
 

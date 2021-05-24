@@ -104,6 +104,7 @@ namespace SqlGenerator.Forms
 
         private void AcceptBtn_Click(object sender, EventArgs e)
         {
+            DialogResult = DialogResult.OK;
             Close();
         }
 

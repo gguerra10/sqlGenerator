@@ -1,5 +1,4 @@
-﻿using SqlGenerator.Enum;
-using System;
+﻿using System;
 using System.Windows.Forms;
 using SqlGenerator.Core.Enum;
 using SqlGenerator.Core.Facade;
@@ -64,7 +63,7 @@ namespace SqlGenerator.Forms
 
         private void BrowseBtn_Click(object sender, EventArgs e)
         {
-            // Open file dialog to pick database scheme in filesystem
+            // Open file dialog to pick sqlite database from filesystem
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Sqlite database (*.db)|*.db",

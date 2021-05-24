@@ -151,7 +151,7 @@ namespace SqlGenerator.Forms
             this.okButton.Name = "okButton";
             this.okButton.Size = new System.Drawing.Size(88, 27);
             this.okButton.TabIndex = 24;
-            this.okButton.Text = "&Acept";
+            this.okButton.Text = "&Accept";
             // 
             // AboutBox
             // 

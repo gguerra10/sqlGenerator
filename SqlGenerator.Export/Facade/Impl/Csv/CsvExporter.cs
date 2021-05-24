@@ -12,7 +12,7 @@ namespace SqlGenerator.Export.Facade.Impl.Csv
         private const string newLine = "\r\n";
         public string Filter => "Comma separated values (*.csv)|*.csv";
 
-        public bool Export(string filePath, DataTable dataTable, params object[] arguments)
+        public bool Export(string filePath, DataTable dataTable)
         {
             var result = false;
 

@@ -39,6 +39,7 @@ namespace SqlGenerator.Core.Facade.Impl.Sqlite
                         " FROM sqlite_master " +
                         " AS m JOIN pragma_table_info(m.name) AS p WHERE m.name NOT LIKE 'sqlite%' " +
                         " ORDER BY  m.name, p.cid";
+
                 using (var cmd = new SqliteCommand(sqlScheme, connection))
                 {
                     var dataReader = cmd.ExecuteReader();
