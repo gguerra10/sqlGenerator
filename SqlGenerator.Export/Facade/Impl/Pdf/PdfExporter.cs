@@ -22,16 +22,15 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
         public string Filter => "Portable Document Format (*.pdf)|*.pdf";
 
         private readonly PdfDesign _pdfDesign;
+        private PdfFont _pdfFont;
         private PdfWriter _pdfWriter;
-
         public PdfExporter(PdfDesign pdfDesign)
         {
             _pdfDesign = pdfDesign;
+            _pdfFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
         }
 
-        private PdfFont _baseFont = PdfFontFactory.CreateFont(StandardFonts.HELVETICA);
-
-        public bool Export(string filePath, DataTable dataTable, params object[] arguments)
+        public bool Export(string filePath, DataTable dataTable)
         {
             bool result;
             try
@@ -49,23 +48,24 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                 _pdfWriter.Close();
             }
             return result;
-
         }
 
         private void GeneratePdf(DataTable dataTable)
         {
+            // Create new pdf document object
             var pdfDocument = new PdfDocument(_pdfWriter); 
 
+            // Create new document object according orientation page
             var document = new Document(pdfDocument, PageSize.A4, false);
             if (_pdfDesign.Orientation.Equals(PdfOrientation.Landscape))
             {
                 document = new Document(pdfDocument, PageSize.A4.Rotate(), false);
             }
 
-            // Add title
+            // Add main title
             document.Add(new Paragraph(_pdfDesign.Title)
                 .SetTextAlignment(TextAlignment.CENTER)
-                .SetFont(_baseFont)
+                .SetFont(_pdfFont)
                 .SetFontSize(_pdfDesign.FontSize + 8));
 
 
@@ -74,10 +74,10 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
             {
                 if(!string.IsNullOrEmpty(designData.Legend))
                 {
-                    // Add title
-                    document.Add(new Paragraph(designData.Legend)
+                    // Add legend
+                    document.Add(new Paragraph(designData.Name + ": " + designData.Legend)
                         .SetTextAlignment(TextAlignment.LEFT)
-                        .SetFont(_baseFont)
+                        .SetFont(_pdfFont)
                         .SetFontSize(_pdfDesign.FontSize));
                 }
             }
@@ -85,17 +85,19 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
             // Add table
             AddDataTable(ref document, dataTable);
 
-
+            // Add header elements
             AddHeaders(document);
 
+            // Close document object
             document.Close();
+            // close pdfDocument object
             pdfDocument.Close();
-            _pdfWriter.Close();
         }
 
 
         private void AddDataTable(ref Document document, DataTable dataTable)
         {
+            // Get widths from PdfDesign
             var widths = new float[dataTable.Columns.Count];
             int order = 0;
             foreach (DataColumn dataColumn in dataTable.Columns)
@@ -104,6 +106,8 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                 order++;
             }
             var table = new Table(widths);
+
+            // Set table alignment according PdfDesign
             switch (_pdfDesign.Alignment)
             {
                 case PdfAlignment.Centered:
@@ -131,7 +135,7 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                 table.AddHeaderCell(cell);
             }
 
-            // Insert data
+            // Insert data from datatable according PdfDesign
             for (int i = 0; i < dataTable.Rows.Count; i++)
             {
                 for (int j = 0; j < dataTable.Columns.Count; j++)
@@ -153,48 +157,51 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                             cell.SetTextAlignment(TextAlignment.LEFT);
                             break;
                     }
-
                     table.AddCell(cell);
                 }
             }
 
             // Insert Totals
-            foreach (DataColumn dataColumn in dataTable.Columns)
+            if (_pdfDesign.DataCollection.Any(d => d.Total))
             {
-                object totalObject = "";
-                var designData = _pdfDesign.DataCollection.First(d => d.Name.Equals(dataColumn.ColumnName));
-                if (designData.Total)
+                foreach (DataColumn dataColumn in dataTable.Columns)
                 {
-                    try
+                    object totalObject = "";
+                    var designData = _pdfDesign.DataCollection.First(d => d.Name.Equals(dataColumn.ColumnName));
+                    if (designData.Total)
                     {
-                        totalObject = dataTable.Compute($"SUM({dataColumn.ColumnName})", string.Empty);
+                        try
+                        {
+                            // Try to get column sumatory
+                            totalObject = dataTable.Compute($"SUM({dataColumn.ColumnName})", string.Empty);
+                        }
+                        catch (Exception)
+                        {
+                            totalObject = "#NaN#";
+                        }
                     }
-                    catch(Exception)
+                    var cell = new Cell().Add(
+                        new Paragraph(totalObject.ToString()))
+                        .SetFontSize(_pdfDesign.FontSize + 2);
+
+                    // Alignment
+                    switch (designData.Alignment)
                     {
-                        totalObject = "#NaN#";
+                        case PdfAlignment.Centered:
+                            cell.SetTextAlignment(TextAlignment.CENTER);
+                            break;
+                        case PdfAlignment.RightAlignment:
+                            cell.SetTextAlignment(TextAlignment.RIGHT);
+                            break;
+                        case PdfAlignment.LeftAlignment:
+                        default:
+                            cell.SetTextAlignment(TextAlignment.LEFT);
+                            break;
                     }
-                }
-                var cell = new Cell().Add(
-                    new Paragraph(totalObject.ToString()))
-                    .SetFontSize(_pdfDesign.FontSize + 2);
 
-                switch (designData.Alignment)
-                {
-                    case PdfAlignment.Centered:
-                        cell.SetTextAlignment(TextAlignment.CENTER);
-                        break;
-                    case PdfAlignment.RightAlignment:
-                        cell.SetTextAlignment(TextAlignment.RIGHT);
-                        break;
-                    case PdfAlignment.LeftAlignment:
-                    default:
-                        cell.SetTextAlignment(TextAlignment.LEFT);
-                        break;
+                    table.AddCell(cell);
                 }
-
-                table.AddCell(cell);
             }
-
 
             document.Add(table);
         }
@@ -205,7 +212,7 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
 
             for (int i = 1; i <= totalPages; i++)
             {
-
+                // Get page size from document
                 var pageSize = document.GetPdfDocument().GetPage(i).GetPageSize();
                 
                 if (_pdfDesign.ShowTimestamp)
@@ -213,7 +220,7 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                     // Add timestamp
                     document.ShowTextAligned(new Paragraph($"Report generated at: { DateTime.Now.ToString("HH:mm:ss dd/MM/yyyy") }"),
                        pageSize.GetWidth() - 10, pageSize.GetHeight() - 20, i, TextAlignment.RIGHT, VerticalAlignment.BOTTOM, 0)
-                      .SetFont(_baseFont)
+                      .SetFont(_pdfFont)
                       .SetFontSize(8);
                 }
 
@@ -222,7 +229,7 @@ namespace SqlGenerator.Export.Facade.Impl.Pdf
                     // Add pagination
                     document.ShowTextAligned(new Paragraph(string.Format("Page {0} of {1}", i, totalPages)),
                          20, pageSize.GetHeight() - 20, i, TextAlignment.LEFT, VerticalAlignment.BOTTOM, 0)
-                        .SetFont(_baseFont)
+                        .SetFont(_pdfFont)
                         .SetFontSize(8);
                 }
             }

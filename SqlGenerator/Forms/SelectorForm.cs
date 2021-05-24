@@ -40,6 +40,8 @@ namespace SqlGenerator.Forms
             // Generate grid views
             ColumnsGridViewCreateColumns();
             TablesGridViewCreateColumns();
+
+            // Add handlers to menu items
             newToolStripMenuItem.Click += NewToolStripMenuItem_Click;
             openToolStripMenuItem.Click += OpenToolStripMenuItem_Click;
             editToolStripMenuItem.Click += EditToolStripMenuItem_Click;
@@ -71,16 +73,22 @@ namespace SqlGenerator.Forms
             {
                 StartPosition = FormStartPosition.CenterParent
             };
+            // Show connection dialog
             var result = connectionForm.ShowDialog();
             if (result == DialogResult.OK)
             {
+                // Connection was ok and database scheme retrieved
                 _database = connectionForm.Database;
+
+                // Create new data archive
                 _sqlGeneratorArchive = new SqlGeneratorArchive();
                 _sqlGeneratorArchive.Data.DatabaseType = connectionForm.DatabaseType;
                 _sqlGeneratorArchive.Data.ConnectionString = _database.ConnectionString;
 
+                // Set database type in sql generator
                 sqlGenerator.SetDatabaseType(connectionForm.DatabaseType);
 
+                // Populate database tree view
                 DatabaseTreeViewAddNodes();
 
                 // Enable / disable menu items
@@ -101,25 +109,31 @@ namespace SqlGenerator.Forms
             {
                 StartPosition = FormStartPosition.CenterParent
             };
+            // Show connection dialog
             var result = connectionForm.ShowDialog();
             if (result == DialogResult.OK)
             {
+                // Connection was ok and database scheme retrieved
                 _database = connectionForm.Database;
 
+                // Create new data archive
+                _sqlGeneratorArchive = new SqlGeneratorArchive();
                 _sqlGeneratorArchive.Data.DatabaseType = connectionForm.DatabaseType;
                 _sqlGeneratorArchive.Data.ConnectionString = _database.ConnectionString;
 
+                // Set database type in sql generator
                 sqlGenerator.SetDatabaseType(connectionForm.DatabaseType);
 
-                sqlGenerator.SetDatabaseType(_sqlGeneratorArchive.Data.DatabaseType);
-
-                RefreshView();
+                // Refresh view with archived data.. some errors may raise
+                ArchiveToView();
+                // Build the sentence
+                BuildSql();
             }
         }
 
         private void OpenFile()
         {
-            // Open file dialog to pick query file
+            // Open file dialog to pick archive
             var openFileDialog = new OpenFileDialog
             {
                 Filter = "Query Generator File (*.qgf)|*.qgf",
@@ -129,30 +143,46 @@ namespace SqlGenerator.Forms
             var result = openFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-
                 try
                 {
+                    // Create new data archive and try to load content
                     _sqlGeneratorArchive = new SqlGeneratorArchive();
                     _sqlGeneratorArchive.Load(openFileDialog.FileName);
 
+                    // Create new database from archived data
                     _database = new DatabaseFactory().GetDatabase(
                         _sqlGeneratorArchive.Data.DatabaseType,
                         _sqlGeneratorArchive.Data.ConnectionString);
 
+                    // Set database type in sql generator
                     sqlGenerator.SetDatabaseType(_sqlGeneratorArchive.Data.DatabaseType);
 
-                    RefreshView();
+                    // Connect to database and try to retrieve scheme
+                    if (_database.Load())
+                    {
+                        // Refresh view with archived data
+                        ArchiveToView();
+                        // Build the sentence
+                        BuildSql();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Database unreachable.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        editToolStripMenuItem.Enabled = true;
+                    }
 
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Bad format file
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         private void SaveFile()
         {
+            // Save archive data to file
             _sqlGeneratorArchive.Save();
         }
 
@@ -166,6 +196,7 @@ namespace SqlGenerator.Forms
             var result = saveFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
+                // Save archive data on selected file
                 _sqlGeneratorArchive.Save(saveFileDialog.FileName);
 
                 // Enable / disable menu items
@@ -193,13 +224,14 @@ namespace SqlGenerator.Forms
             var result = saveFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
+                // Get results from view to export them
                 var dataTable = (DataTable)resultGridView.DataSource;
                 // Export dataTable to file
-                if(_exporter.Export(saveFileDialog.FileName, dataTable))
+                if (_exporter.Export(saveFileDialog.FileName, dataTable))
                 {
+                    // Open file automatically using shell
                     new Process
                     {
-                        // Open file using shell
                         StartInfo = new ProcessStartInfo(saveFileDialog.FileName)
                         {
                             UseShellExecute = true
@@ -209,43 +241,83 @@ namespace SqlGenerator.Forms
             }
         }
 
+        /// <summary>
+        /// New Connection menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void NewToolStripMenuItem_Click(object sender, EventArgs e)
         {
             NewConnection();
         }
 
-        private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFile();
-        }
-
+        /// <summary>
+        /// Edit connection menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void EditToolStripMenuItem_Click(object sender, EventArgs e)
         {
             EditConnection();
         }
 
+        /// <summary>
+        /// Open archive data menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFile();
+        }
+
+        /// <summary>
+        /// Save archive data menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFile();
         }
 
+        /// <summary>
+        /// Save as archive data menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveAsFile();
         }
 
+        /// <summary>
+        /// Excel export menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ExcelToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _exporter = new ExcelExporter();
             Export();
         }
 
+        /// <summary>
+        /// Csv export menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CsvToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _exporter = new CsvExporter();
             Export();
         }
 
+        /// <summary>
+        /// Pdf designer menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PdfToolStripMenuItem_Click(object sender, EventArgs e)
         {
 
@@ -257,6 +329,11 @@ namespace SqlGenerator.Forms
             _sqlGeneratorArchive = pdfDesigner.QueryGeneratorFile;
         }
 
+        /// <summary>
+        /// About menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var aboutBox = new AboutBox()
@@ -266,6 +343,12 @@ namespace SqlGenerator.Forms
             aboutBox.ShowDialog();
         }
 
+
+        /// <summary>
+        /// Exit menu button handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Exit();
@@ -275,55 +358,59 @@ namespace SqlGenerator.Forms
 
         #region Tables tree view
 
-        
+
 
         /// <summary>
-        /// Populate tables tree view from databaseScheme
+        /// Populate database treeview with database data
         /// </summary>
         private void DatabaseTreeViewAddNodes()
         {
             try
             {
-                // Clear tables treeview before populate
+                // Clear database treeview before populate
                 databaseTreeView.Nodes.Clear();
+                // Populate tables treeview from database object
                 foreach (var table in _database.Tables)
                 {
-                    // Populate tables treeview from database scheme
+                    // Create new node with table object 
                     var tableNode = new TreeNode(table.ToString())
                     {
                         Tag = table
                     };
                     foreach (var column in table.Columns)
                     {
+                        // Create new child node from column object
                         var columnNode = new TreeNode(column.ToString())
                         {
                             Tag = column
                         };
+                        // Add column child node
                         tableNode.Nodes.Add(columnNode);
                     }
+                    // Add table node
                     databaseTreeView.Nodes.Add(tableNode);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
 
         /// <summary>
-        /// Table selected in treeview event handler
+        /// Table selected in database treeview event handler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void DatabaseTreeViewAfterSelect(object sender, TreeViewEventArgs e)
         {
+            // First level are tables
             if (e.Node.Level == 0)
             {
                 var selectedTable = (ITable)e.Node.Tag;
                 if (selectedTable != null)
                 {
-
                     // Populate tables view from selected table in TreeView
                     tablesGridView.Rows.Clear();
                     var tablesGridViewRow = new TablesGridViewRow()
@@ -345,13 +432,18 @@ namespace SqlGenerator.Forms
                         ColumnsGridViewRowAddRow(columnsGridViewRow);
                     }
 
-                    UpdateSqlGeneratorArchiveContent();
+                    ViewToArchive();
                     BuildSql();
                 }
             }
 
         }
 
+        /// <summary>
+        /// Table dragged from database treeview event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DatabaseTreeViewItemDrag(object sender, ItemDragEventArgs e)
         {
             // Begin drag effect
@@ -368,7 +460,7 @@ namespace SqlGenerator.Forms
         /// </summary>
         private void TablesGridViewCreateColumns()
         {
-            //Grid column (text type): database table column name
+            // Grid column (text type): database table column name
             DataGridViewTextBoxColumn columnName = new DataGridViewTextBoxColumn()
             {
                 Name = TablesGridViewColumns.TableName.GetName(),
@@ -377,7 +469,7 @@ namespace SqlGenerator.Forms
             };
             tablesGridView.Columns.Add(columnName);
 
-            //Grid column (button type): database table column condition
+            // Grid column (button type): database table column condition
             DataGridViewButtonColumn columnCondition = new DataGridViewButtonColumn()
             {
                 Name = TablesGridViewColumns.Join.GetName(),
@@ -388,7 +480,7 @@ namespace SqlGenerator.Forms
         }
 
         /// <summary>
-        /// Cell clicked in tables grid view
+        /// Cell clicked in tables grid view handler
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -412,23 +504,31 @@ namespace SqlGenerator.Forms
                 {
                     StartPosition = FormStartPosition.CenterParent
                 };
-                joinForm.ShowDialog();
-                tablesGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag = joinForm.SqlJoin;
-                tablesGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = joinForm.SqlJoin.ToString();
-
+                // Show join dialog
+                if (joinForm.ShowDialog() == DialogResult.OK)
+                {
+                    // if Ok refresh view
+                    tablesGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag = joinForm.SqlJoin;
+                    tablesGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = joinForm.SqlJoin.ToString();
+                }
                 tablesGridView.AutoSizeColumns();
 
-                UpdateSqlGeneratorArchiveContent();
+                ViewToArchive();
                 BuildSql();
             }
         }
 
+        /// <summary>
+        /// Table drag enter to tables grid view event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TablesGridViewDragEnter(object sender, DragEventArgs e)
         {
             // Retrieve the node that was dragged.
             var draggedNode = (TreeNode)e.Data.GetData(typeof(TreeNode));
 
-            // Check if item is new and allow drop
+            // Check if item is new and allow drop, prevent from add same table twice
             bool draggedNodeIsNew = true;
             foreach (DataGridViewRow row in tablesGridView.Rows)
             {
@@ -443,6 +543,11 @@ namespace SqlGenerator.Forms
             }
         }
 
+        /// <summary>
+        /// Table drag drop on tables grid view event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TablesGridViewDragDrop(object sender, DragEventArgs e)
         {
             // Retrieve the node that was dragged.
@@ -458,55 +563,65 @@ namespace SqlGenerator.Forms
             }
             if (draggedNodeIsNew)
             {
+                // Retrieve the table object
                 var table = (ITable)draggedNode.Tag;
                 if (table != null)
                 {
-                    var previousTableSchemes = new List<ITable>();
+                    // Retrieve every table already added in order to build the join relation
+                    var previousTables = new List<ITable>();
                     foreach (DataGridViewRow row in tablesGridView.Rows)
                     {
-                        previousTableSchemes.Add((ITable)row.Cells[TablesGridViewColumns.TableName.GetName()].Tag);
+                        previousTables.Add((ITable)row.Cells[TablesGridViewColumns.TableName.GetName()].Tag);
                     }
                     var sqlJoin = new SqlJoin()
                     {
                         Table = table.ToString(),
                         JoinType = JoinType.Join,
                     };
-                    var joinForm = new JoinForm(sqlJoin, table, previousTableSchemes)
+                    var joinForm = new JoinForm(sqlJoin, table, previousTables)
                     {
                         StartPosition = FormStartPosition.CenterParent
                     };
-                    joinForm.ShowDialog();
-
-                    var tablesGridViewRow = new TablesGridViewRow()
+                    // Show join dialog
+                    if (joinForm.ShowDialog() == DialogResult.OK)
                     {
-                        Table = table,
-                        Join = joinForm.SqlJoin
-                    };
 
-                    TablesGridViewAddRow(tablesGridViewRow);
-
-
-                    // Add columns view from selected table in TreeView
-                    foreach (var column in table.Columns)
-                    {
-                        var columnsGridViewRow = new ColumnsGridViewRow()
+                        var tablesGridViewRow = new TablesGridViewRow()
                         {
                             Table = table,
-                            Column = column,
-                            Selected = true,
+                            Join = joinForm.SqlJoin
                         };
-                        ColumnsGridViewRowAddRow(columnsGridViewRow);
+
+                        TablesGridViewAddRow(tablesGridViewRow);
+
+                        // Add columns view from selected table in TreeView
+                        foreach (var column in table.Columns)
+                        {
+                            var columnsGridViewRow = new ColumnsGridViewRow()
+                            {
+                                Table = table,
+                                Column = column,
+                                Selected = true,
+                            };
+                            ColumnsGridViewRowAddRow(columnsGridViewRow);
+                        }
                     }
-
-
-                    UpdateSqlGeneratorArchiveContent();
+                    // Save to memory archive
+                    ViewToArchive();
+                    // Build the new sentence
                     BuildSql();
                 }
             }
         }
 
+        /// <summary>
+        /// Tables grid view deleting row event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TablesGridViewUserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
+            // First table cannot be erased
             if (e.Row.Index == 0)
             {
                 e.Cancel = true;
@@ -518,9 +633,17 @@ namespace SqlGenerator.Forms
             }
         }
 
+        /// <summary>
+        /// Tables grid view deleted row event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TablesGridViewUserDeletedRow(object sender, DataGridViewRowEventArgs e)
         {
-            UpdateSqlGeneratorArchiveContent();
+
+            // Save to memory archive
+            ViewToArchive();
+            // Build the new sentence
             BuildSql();
         }
 
@@ -713,7 +836,7 @@ namespace SqlGenerator.Forms
             if (columnsGridView.IsCurrentCellDirty)
             {
                 columnsGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
-                UpdateSqlGeneratorArchiveContent();
+                ViewToArchive();
                 BuildSql();
             }
         }
@@ -727,9 +850,7 @@ namespace SqlGenerator.Forms
         /// <param name="e"></param>
         private void ColumnsGridViewCellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            Debug.WriteLine("Column: " + e.ColumnIndex + ", row: " + e.RowIndex + " cell content clicked");
             var senderGrid = (DataGridView)sender;
-
             if (e.RowIndex >= 0)
             {
                 var tableScheme = (ITable)senderGrid.Rows[e.RowIndex].Cells[ColumnsGridViewColumns.TableName.GetPosition()].Tag;
@@ -737,7 +858,7 @@ namespace SqlGenerator.Forms
                 if (e.ColumnIndex.Equals(ColumnsGridViewColumns.Condition.GetPosition()) &&
                     senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
                 {
-                    //Handle condition column button clicked, open filter dialog
+                    // Handle condition column button clicked, open filter dialog
                     var sqlCondition = (SqlCondition)senderGrid.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag;
                     if (sqlCondition == null)
                     {
@@ -747,13 +868,15 @@ namespace SqlGenerator.Forms
                     {
                         StartPosition = FormStartPosition.CenterParent
                     };
-                    conditionForm.ShowDialog();
-                    columnsGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag = conditionForm.SqlCondition;
-                    columnsGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = conditionForm.SqlCondition != null ? conditionForm.SqlCondition.ToString() : "None";
 
+                    if (conditionForm.ShowDialog() == DialogResult.OK)
+                    {
+                        columnsGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Tag = conditionForm.SqlCondition;
+                        columnsGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = conditionForm.SqlCondition != null ? conditionForm.SqlCondition.ToString() : "None";
+                    }
                     columnsGridView.AutoSizeColumns();
 
-                    UpdateSqlGeneratorArchiveContent();
+                    ViewToArchive();
                     BuildSql();
                 }
             }
@@ -780,7 +903,9 @@ namespace SqlGenerator.Forms
                         Debug.WriteLine($"{tableScheme.ToString()}.{columnScheme.ToString()}" + " unselected");
                     }
 
-                    UpdateSqlGeneratorArchiveContent();
+                    // Save to memory archive
+                    ViewToArchive();
+                    // Build the new sentence
                     BuildSql();
                 }
             }
@@ -789,87 +914,90 @@ namespace SqlGenerator.Forms
         #endregion
 
 
-        private void RefreshView()
+        /// <summary>
+        /// Get all selected data from archive and refresh view
+        /// </summary>
+        private void ArchiveToView()
         {
-            if (_database.Load())
+            // Enable / disable menu items
+            editToolStripMenuItem.Enabled = true;
+            mainSplitContainer.Visible = true;
+            saveToolStripMenuItem.Enabled = true;
+            saveAsToolStripMenuItem.Enabled = true;
+
+            // Populate database tree view
+            DatabaseTreeViewAddNodes();
+
+            if (_database.Tables.Any())
             {
-                // Enable / disable menu items
-                editToolStripMenuItem.Enabled = true;
-                mainSplitContainer.Visible = true;
-                saveToolStripMenuItem.Enabled = true;
-                saveAsToolStripMenuItem.Enabled = true;
-
-                DatabaseTreeViewAddNodes();
-
-                if (_database.Tables.Any())
+                // Set selected table on database tree view  from archive
+                if (_sqlGeneratorArchive.Data.Tables.Any())
                 {
-                    if (_sqlGeneratorArchive.Data.Tables.Any())
+                    var firstTable = _sqlGeneratorArchive.Data.Tables.First();
+                    var selectedTable = databaseTreeView.SearchRecursive(firstTable.TableName.ToString());
+                    if (selectedTable != null)
                     {
-                        var firstTable = _sqlGeneratorArchive.Data.Tables.First();
-                        var selectedTable = databaseTreeView.SearchRecursive(firstTable.TableName.ToString());
-                        if (selectedTable != null)
-                        {
-                            databaseTreeView.AfterSelect -= DatabaseTreeViewAfterSelect;
-                            databaseTreeView.SelectedNode = selectedTable;
-                            databaseTreeView.AfterSelect += DatabaseTreeViewAfterSelect;
-                        }
-                    }
-
-                    tablesGridView.Rows.Clear();
-
-                    foreach (var fileTable in _sqlGeneratorArchive.Data.Tables)
-                    {
-                        var table = (ITable)databaseTreeView.SearchRecursive(fileTable.TableName).Tag;
-                        var tablesGridViewRow = new TablesGridViewRow()
-                        {
-                            Table = table,
-                            Join = fileTable.Join
-                        };
-                        TablesGridViewAddRow(tablesGridViewRow);
-                    }
-
-                    columnsGridView.Rows.Clear();
-                    foreach (var fileColumn in _sqlGeneratorArchive.Data.Columns)
-                    {
-                        // Find table
-                        var table = (ITable)databaseTreeView.SearchRecursive(fileColumn.TableName).Tag;
-                        var column = (IColumn)databaseTreeView.SearchRecursive(fileColumn.ColumnName).Tag;
-                        var columnGridViewRow = new ColumnsGridViewRow()
-                        {
-                            Table = table,
-                            Column = column,
-                            Selected = fileColumn.Selected,
-                            Alias = fileColumn.Alias,
-                            Condition = fileColumn.Condition,
-                            Group = fileColumn.Group,
-                            Agreggation = fileColumn.Agreggation,
-                            Order = fileColumn.Order,
-
-                        };
-                        ColumnsGridViewRowAddRow(columnGridViewRow);
+                        databaseTreeView.AfterSelect -= DatabaseTreeViewAfterSelect;
+                        databaseTreeView.SelectedNode = selectedTable;
+                        databaseTreeView.AfterSelect += DatabaseTreeViewAfterSelect;
                     }
                 }
-                else
+
+                // Populate tables grid view from archive
+                tablesGridView.Rows.Clear();
+                foreach (var fileTable in _sqlGeneratorArchive.Data.Tables)
                 {
-                    MessageBox.Show("Database has no tables.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    // Retrive table object from database tree view control
+                    var table = (ITable)databaseTreeView.SearchRecursive(fileTable.TableName).Tag;
+
+                    // Create a new row for tables grid view
+                    var tablesGridViewRow = new TablesGridViewRow()
+                    {
+                        Table = table,
+                        Join = fileTable.Join
+                    };
+                    TablesGridViewAddRow(tablesGridViewRow);
                 }
 
-                limitTextBox.Text = _sqlGeneratorArchive.Data.Options.Limit.ToString();
+                // Populate columns grid view from archive
+                columnsGridView.Rows.Clear();
+                foreach (var fileColumn in _sqlGeneratorArchive.Data.Columns)
+                {
+                    // Retrieve table and column object from database tree view control
+                    var table = (ITable)databaseTreeView.SearchRecursive(fileColumn.TableName).Tag;
+                    var column = (IColumn)databaseTreeView.SearchRecursive(fileColumn.ColumnName).Tag;
 
-                BuildSql();
+                    // Create a new row for columns grid view
+                    var columnGridViewRow = new ColumnsGridViewRow()
+                    {
+                        Table = table,
+                        Column = column,
+                        Selected = fileColumn.Selected,
+                        Alias = fileColumn.Alias,
+                        Condition = fileColumn.Condition,
+                        Group = fileColumn.Group,
+                        Agreggation = fileColumn.Agreggation,
+                        Order = fileColumn.Order,
+
+                    };
+                    // Add the item
+                    ColumnsGridViewRowAddRow(columnGridViewRow);
+                }
             }
             else
             {
-                MessageBox.Show("Database unreachable.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                editToolStripMenuItem.Enabled = true;
+                MessageBox.Show("Database has no tables.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
+
+            limitTextBox.Text = _sqlGeneratorArchive.Data.Options.Limit.ToString();
         }
 
         /// <summary>
-        /// Keep selection in file
+        /// Get selected input from view to save on memory archive
         /// </summary>
-        private void UpdateSqlGeneratorArchiveContent()
+        private void ViewToArchive()
         {
+            // Save tables from tables grid view
             _sqlGeneratorArchive.Data.Tables.Clear();
             foreach (DataGridViewRow row in tablesGridView.Rows)
             {
@@ -881,6 +1009,7 @@ namespace SqlGenerator.Forms
                 _sqlGeneratorArchive.Data.Tables.Add(fileTable);
             }
 
+            // Save columns from columns grid view
             _sqlGeneratorArchive.Data.Columns.Clear();
             foreach (DataGridViewRow row in columnsGridView.Rows)
             {
@@ -899,11 +1028,12 @@ namespace SqlGenerator.Forms
                 _sqlGeneratorArchive.Data.Columns.Add(fileColumn);
             }
 
+            // Save limit results value
             _sqlGeneratorArchive.Data.Options.Limit = Convert.ToUInt32(limitTextBox.Text);
-
         }
+
         /// <summary>
-        /// Retrieve data among controls in order to build SQL
+        /// Retrieve data from memory archive and build sql sentence
         /// </summary>
         private void BuildSql()
         {
@@ -998,9 +1128,8 @@ namespace SqlGenerator.Forms
                     // Execute Sql
                     ExecuteSql(sql);
                 }
-
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 resultLabel.Text = $"Error: {ex.Message}.";
@@ -1008,12 +1137,15 @@ namespace SqlGenerator.Forms
             }
         }
 
+        /// <summary>
+        /// Sql sentence excecution against database
+        /// </summary>
+        /// <param name="sql"></param>
         private void ExecuteSql(string sql)
         {
             Cursor.Current = Cursors.WaitCursor;
             try
             {
-
                 var dataTable = _database.ExecuteSql(sql);
                 dataTable.TableName = "Results";
                 resultGridView.DataSource = dataTable;
@@ -1028,11 +1160,17 @@ namespace SqlGenerator.Forms
             {
                 MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 resultLabel.Text = $"Error: {ex.Message}.";
+                // If something went wrong, then disable automatic sql execution
                 automaticCheckBox.Checked = false;
             }
             Cursor.Current = Cursors.Arrow;
         }
 
+        /// <summary>
+        /// Limit text box key press event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LimitTextBoxKeyPress(object sender, KeyPressEventArgs e)
         {
             // Only allow to enter digits on
@@ -1042,54 +1180,96 @@ namespace SqlGenerator.Forms
             }
         }
 
+        /// <summary>
+        /// Limit text box value changed event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void LimitTextBoxTextChanged(object sender, EventArgs e)
         {
-            UpdateSqlGeneratorArchiveContent();
+            // Save all content on memory archive
+            ViewToArchive();
+            // Build new sentence
             BuildSql();
         }
 
         private void AutomaticCheckBoxCheckedChanged(object sender, EventArgs e)
         {
             executeSqlButton.Visible = !automaticCheckBox.Checked;
-            if(automaticCheckBox.Checked)
+            if (automaticCheckBox.Checked)
             {
                 ExecuteSql(sqlTextBox.Text);
             }
         }
 
+        /// <summary>
+        /// Sql editable check box checked event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SqlEditableCheckBoxCheckedChanged(object sender, EventArgs e)
         {
+            // If sql editable is active then disable tables and columns grid view
+            // and make sql text box editable
             sqlTextBox.ReadOnly = !sqlEditableCheckBox.Checked;
             tablesGridView.Enabled = !sqlEditableCheckBox.Checked;
             columnsGridView.Enabled = !sqlEditableCheckBox.Checked;
-            if(automaticCheckBox.Checked && sqlEditableCheckBox.Checked)
+            if (automaticCheckBox.Checked && sqlEditableCheckBox.Checked)
             {
                 automaticCheckBox.Checked = false;
             }
         }
 
-        private void AgreggationCheckBox_CheckedChanged(object sender, EventArgs e)
-        {
-            // Nothing to do
-        }
 
+        /// <summary>
+        /// Excete sql button clicked event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ExecuteSqlButton_Click(object sender, EventArgs e)
         {
             // Execute Sql
             ExecuteSql(sqlTextBox.Text);
         }
 
+
+        /// <summary>
+        /// Auxiliar var to toggle all columns selection.
+        /// </summary>
         private bool _allSelected;
+
+        /// <summary>
+        /// Select all button clicked event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SelectAllButton_Click(object sender, EventArgs e)
         {
+            // Iterate every item in columns grid view to set same value
             foreach (DataGridViewRow row in columnsGridView.Rows)
             {
                 var checkBoxCell = ((DataGridViewCheckBoxCell)row.Cells[ColumnsGridViewColumns.Selected.GetPosition()]);
                 checkBoxCell.Value = _allSelected;
             }
+            // Swap value
             _allSelected = !_allSelected;
         }
 
+        /// <summary>
+        /// Agreggation check box checked changed event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AgreggationCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            // Nothing to do
+        }
+
+        /// <summary>
+        /// Form shown event handler
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SelectorForm_Shown(object sender, EventArgs e)
         {
             // Nothing to do.

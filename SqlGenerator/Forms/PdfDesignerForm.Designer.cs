@@ -53,13 +53,13 @@ namespace SqlGenerator.Forms
             this.panel2 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.timestampCheckBox = new System.Windows.Forms.CheckBox();
             this.titleTextBox = new System.Windows.Forms.TextBox();
             this.titleLabel = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.saveButton = new System.Windows.Forms.Button();
             this.exportButton = new System.Windows.Forms.Button();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.timestampCheckBox = new System.Windows.Forms.CheckBox();
             this.paginationCheckBox = new System.Windows.Forms.CheckBox();
             this.mainTableLayout.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -375,22 +375,10 @@ namespace SqlGenerator.Forms
             this.panel3.Size = new System.Drawing.Size(493, 28);
             this.panel3.TabIndex = 1;
             // 
-            // timestampCheckBox
-            // 
-            this.timestampCheckBox.AutoSize = true;
-            this.timestampCheckBox.Checked = true;
-            this.timestampCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.timestampCheckBox.Location = new System.Drawing.Point(98, 7);
-            this.timestampCheckBox.Name = "timestampCheckBox";
-            this.timestampCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.timestampCheckBox.Size = new System.Drawing.Size(85, 19);
-            this.timestampCheckBox.TabIndex = 3;
-            this.timestampCheckBox.Text = "Timestamp";
-            this.timestampCheckBox.UseVisualStyleBackColor = true;
-            this.timestampCheckBox.CheckedChanged += new System.EventHandler(this.TimestampCheckBoxCheckedChanged);
-            // 
             // titleTextBox
             // 
+            this.titleTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.titleTextBox.Location = new System.Drawing.Point(45, 4);
             this.titleTextBox.Name = "titleTextBox";
             this.titleTextBox.Size = new System.Drawing.Size(286, 23);
@@ -418,6 +406,8 @@ namespace SqlGenerator.Forms
             // 
             // saveButton
             // 
+            this.saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.saveButton.Location = new System.Drawing.Point(15, 3);
             this.saveButton.Name = "saveButton";
             this.saveButton.Size = new System.Drawing.Size(75, 23);
@@ -428,7 +418,8 @@ namespace SqlGenerator.Forms
             // 
             // exportButton
             // 
-            this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.exportButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.exportButton.Location = new System.Drawing.Point(113, 3);
             this.exportButton.Name = "exportButton";
             this.exportButton.Size = new System.Drawing.Size(75, 23);
@@ -447,8 +438,26 @@ namespace SqlGenerator.Forms
             this.panel5.Size = new System.Drawing.Size(393, 28);
             this.panel5.TabIndex = 3;
             // 
+            // timestampCheckBox
+            // 
+            this.timestampCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.timestampCheckBox.AutoSize = true;
+            this.timestampCheckBox.Checked = true;
+            this.timestampCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.timestampCheckBox.Location = new System.Drawing.Point(98, 7);
+            this.timestampCheckBox.Name = "timestampCheckBox";
+            this.timestampCheckBox.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.timestampCheckBox.Size = new System.Drawing.Size(85, 19);
+            this.timestampCheckBox.TabIndex = 3;
+            this.timestampCheckBox.Text = "Timestamp";
+            this.timestampCheckBox.UseVisualStyleBackColor = true;
+            this.timestampCheckBox.CheckedChanged += new System.EventHandler(this.TimestampCheckBoxCheckedChanged);
+            // 
             // paginationCheckBox
             // 
+            this.paginationCheckBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.paginationCheckBox.AutoSize = true;
             this.paginationCheckBox.Checked = true;
             this.paginationCheckBox.CheckState = System.Windows.Forms.CheckState.Checked;

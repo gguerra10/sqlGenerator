@@ -61,6 +61,7 @@ namespace SqlGenerator.Forms
             if (filterOk)
             {
                 FillCondition();
+                DialogResult = DialogResult.OK;
                 Close();
             }
             else
